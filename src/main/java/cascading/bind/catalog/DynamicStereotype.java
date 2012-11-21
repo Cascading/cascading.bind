@@ -39,7 +39,7 @@ public class DynamicStereotype<Protocol, Format> extends Stereotype<Protocol, Fo
    */
   public static interface SchemeFactory<Protocol, Format> extends Serializable
     {
-    Scheme createScheme( Protocol protocol, Format format, Fields fields );
+    Scheme createScheme( Stereotype<Protocol, Format> stereotype, Protocol protocol, Format format );
     }
 
   public DynamicStereotype( Protocol defaultProtocol, String name, Fields fields )
@@ -60,7 +60,7 @@ public class DynamicStereotype<Protocol, Format> extends Stereotype<Protocol, Fo
     if( factory == null )
       return null;
 
-    return factory.createScheme( protocol, format, getFields() );
+    return factory.createScheme( this, protocol, format );
     }
 
   @Override
