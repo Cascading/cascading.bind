@@ -18,15 +18,17 @@
  * limitations under the License.
  */
 
+
+
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'maven'
 
-apply from: 'etc/properties.gradle'
+apply from: 'etc/version.gradle'
 
 archivesBaseName = 'cascading-bind'
 group = 'cascading'
-version = '1.0-wip-dev'
+version = releaseVersion
 
 repositories {
   mavenLocal()
