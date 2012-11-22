@@ -22,7 +22,7 @@ package cascading.bind;
 
 import java.util.Properties;
 
-import cascading.bind.factory.FlowFactory;
+import cascading.bind.process.FlowFactory;
 import cascading.bind.tap.TapResource;
 import cascading.flow.Flow;
 import cascading.flow.FlowConnector;

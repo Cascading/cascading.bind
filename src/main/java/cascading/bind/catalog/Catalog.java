@@ -29,9 +29,7 @@ import java.util.Set;
 
 import cascading.tuple.Fields;
 
-/**
- *
- */
+/** Class Catalog maintains a collection of {@link Stereotype} instances for lookup. */
 public class Catalog<Protocol, Format> implements Serializable
   {
   Map<String, Stereotype<Protocol, Format>> nameToStereotype = new HashMap<String, Stereotype<Protocol, Format>>();

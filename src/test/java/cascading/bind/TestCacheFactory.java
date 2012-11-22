@@ -23,8 +23,8 @@ package cascading.bind;
 import java.util.Collection;
 import java.util.Properties;
 
-import cascading.bind.factory.CascadeFactory;
-import cascading.bind.factory.ProcessFactory;
+import cascading.bind.process.CascadeFactory;
+import cascading.bind.process.ProcessFactory;
 import cascading.cascade.Cascade;
 
 /** A mock FlowFactory that creates copies a from from one location to another. */

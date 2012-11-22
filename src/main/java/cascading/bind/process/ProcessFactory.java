@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package cascading.bind.factory;
+package cascading.bind.process;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +31,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import cascading.bind.catalog.Stereotype;
+import cascading.bind.factory.Factory;
 import cascading.bind.tap.TapResource;
 
 /**
@@ -39,7 +40,7 @@ import cascading.bind.tap.TapResource;
  *
  * @param <Process>  a 'process' type
  * @param <Resource> a resource type sub-classing {@link cascading.bind.catalog.Resource}
- * @see FlowFactory
+ * @see cascading.bind.process.FlowFactory
  */
 public abstract class ProcessFactory<Process, Resource extends TapResource> extends Factory<Process>
   {

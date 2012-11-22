@@ -23,7 +23,7 @@ package cascading.bind;
 import java.util.Properties;
 
 import cascading.bind.catalog.Stereotype;
-import cascading.bind.factory.FlowFactory;
+import cascading.bind.process.FlowFactory;
 import cascading.flow.Flow;
 import cascading.flow.FlowConnector;
 import cascading.flow.local.LocalFlowConnector;

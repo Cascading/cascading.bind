@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package cascading.bind.factory;
+package cascading.bind.process;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -80,7 +80,7 @@ public abstract class FlowFactory extends ProcessFactory<Flow, TapResource>
    */
   public Tap getSourceTapFor( String sourceName )
     {
-    TapFactory factory = getTapFactory( sourceStereotypes.get( sourceName ) );
+    TapFactory factory = getTapFactory( getSourceStereotype( sourceName ) );
 
     if( factory == null )
       throw new IllegalArgumentException( "could not find stereotype for source name: " + sourceName );
@@ -120,7 +120,7 @@ public abstract class FlowFactory extends ProcessFactory<Flow, TapResource>
    */
   public Tap getSinkTapFor( String sinkName )
     {
-    TapFactory factory = getTapFactory( sinkStereotypes.get( sinkName ) );
+    TapFactory factory = getTapFactory( getSinkStereotype( sinkName ) );
 
     if( factory == null )
       throw new IllegalArgumentException( "could not find stereotype for sink name: " + sinkName );
