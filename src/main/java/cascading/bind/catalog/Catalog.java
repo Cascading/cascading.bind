@@ -21,8 +21,11 @@
 package cascading.bind.catalog;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import cascading.tuple.Fields;
 
@@ -38,6 +41,26 @@ public class Catalog<Protocol, Format> implements Serializable
     {
     }
 
+  public Collection<Format> getAllFormats()
+    {
+    Set<Format> formats = new HashSet<Format>();
+
+    for( Stereotype<Protocol, Format> stereotype : nameToStereotype.values() )
+      formats.addAll( stereotype.getAllFormats() );
+
+    return formats;
+    }
+
+  public Collection<Protocol> getAllProtocols()
+    {
+    Set<Protocol> protocols = new HashSet<Protocol>();
+
+    for( Stereotype<Protocol, Format> stereotype : nameToStereotype.values() )
+      protocols.addAll( stereotype.getAllProtocols() );
+
+    return protocols;
+    }
+
   public Stereotype<Protocol, Format> getStereotypeFor( String name )
     {
     if( name == null || name.isEmpty() )
@@ -49,6 +72,30 @@ public class Catalog<Protocol, Format> implements Serializable
   public Stereotype<Protocol, Format> getStereotypeFor( Fields fields )
     {
     return fieldsToStereotype.get( normalize( fields ) );
+    }
+
+  public boolean removeStereotype( String name )
+    {
+    Stereotype<Protocol, Format> stereotype = nameToStereotype.remove( name );
+
+    if( stereotype == null )
+      return false;
+
+    return fieldsToStereotype.remove( stereotype.getFields() ) != null;
+    }
+
+  public boolean renameStereotype( String name, String newName )
+    {
+    Stereotype<Protocol, Format> stereotype = nameToStereotype.remove( name );
+
+    if( stereotype == null )
+      return false;
+
+    fieldsToStereotype.remove( stereotype.getFields() );
+
+    addStereotype( new Stereotype<Protocol, Format>( stereotype, newName ) );
+
+    return true;
     }
 
   public void addStereotype( Stereotype<Protocol, Format> stereotype )

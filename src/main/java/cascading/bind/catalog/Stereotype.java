@@ -24,8 +24,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import cascading.scheme.Scheme;
 import cascading.tuple.Fields;
@@ -68,6 +70,17 @@ public class Stereotype<Protocol, Format> implements Serializable
       throw new IllegalArgumentException( "defaultProtocol may not be null" );
     }
 
+  /**
+   * Simple copy constructor allowing change of stereotype name.
+   *
+   * @param stereotype
+   * @param name
+   */
+  public Stereotype( Stereotype<Protocol, Format> stereotype, String name )
+    {
+    this( stereotype.getDefaultProtocol(), name, stereotype.getFields() );
+    }
+
   public String getName()
     {
     return name;
@@ -86,6 +99,26 @@ public class Stereotype<Protocol, Format> implements Serializable
   public Fields getFields()
     {
     return fields;
+    }
+
+  public Collection<Format> getAllFormats()
+    {
+    Set<Format> formats = new HashSet<Format>();
+
+    for( Point<Protocol, Format> point : schemes.keySet() )
+      formats.add( point.format );
+
+    return formats;
+    }
+
+  public Collection<Protocol> getAllProtocols()
+    {
+    Set<Protocol> protocols = new HashSet<Protocol>();
+
+    for( Point<Protocol, Format> point : schemes.keySet() )
+      protocols.add( point.protocol );
+
+    return protocols;
     }
 
   private void setFields( Scheme scheme )
