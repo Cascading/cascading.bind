@@ -22,12 +22,14 @@ package cascading.bind;
 
 import java.util.Properties;
 
+import cascading.bind.catalog.Resource;
 import cascading.bind.catalog.Stereotype;
 import cascading.bind.process.FlowFactory;
 import cascading.flow.Flow;
 import cascading.flow.FlowConnector;
 import cascading.flow.local.LocalFlowConnector;
 import cascading.pipe.Pipe;
+import cascading.tap.SinkMode;
 
 /**
  * A mock FlowFactory that creates a working Flow for conversion of data between
@@ -52,6 +54,7 @@ public class CSVToTSVFactory extends FlowFactory
     super( properties, name );
     this.hasHeaders = hasHeaders;
 
+    getProtocolHandlers().add( new ConversionHandler() );
     setSourceStereotype( name, stereotype );
     setSinkStereotype( name, stereotype );
     }
@@ -63,7 +66,7 @@ public class CSVToTSVFactory extends FlowFactory
 
   public void setSource( Protocol protocol, String path )
     {
-    addSourceResource( getName(), new ConversionResource( path, protocol, hasHeaders ? Format.CSV_HEADERS : Format.CSV ) );
+    addSourceResource( getName(), new Resource( path, protocol, hasHeaders ? Format.CSV_HEADERS : Format.CSV, SinkMode.KEEP ) );
     }
 
   public void setSink( String path )
@@ -73,7 +76,7 @@ public class CSVToTSVFactory extends FlowFactory
 
   public void setSink( Protocol protocol, String path )
     {
-    addSinkResource( getName(), new ConversionResource( path, protocol, Format.TSV ) );
+    addSinkResource( getName(), new Resource( path, protocol, Format.TSV, SinkMode.REPLACE ) );
     }
 
   @Override

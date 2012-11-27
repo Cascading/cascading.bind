@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import cascading.bind.catalog.Resource;
 import cascading.bind.factory.Factory;
-import cascading.bind.tap.TapResource;
 import cascading.cascade.Cascade;
 import cascading.cascade.CascadeConnector;
 import cascading.flow.Flow;
@@ -37,7 +37,7 @@ import org.jgrapht.graph.SimpleDirectedGraph;
 /**
  *
  */
-public class CascadeFactory<Resource extends TapResource> extends Factory<Cascade>
+public class CascadeFactory extends Factory<Cascade>
   {
   private final String name;
 

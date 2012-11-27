@@ -29,18 +29,13 @@ import java.io.Serializable;
  * @param <Protocol> a 'protocol' type
  * @param <Format>   a data 'format' type
  * @param <Mode>     a access 'mode' type
- * @see cascading.bind.tap.TapResource
  */
-public class Resource<Protocol, Format, Mode> implements Serializable
+public final class Resource<Protocol, Format, Mode> implements Serializable
   {
-  private String identifier;
-  private Protocol protocol;
-  private Format format;
-  private Mode mode;
-
-  protected Resource()
-    {
-    }
+  private final String identifier;
+  private final Protocol protocol;
+  private final Format format;
+  private final Mode mode;
 
   public Resource( String identifier, Protocol protocol, Format format, Mode mode )
     {
@@ -53,12 +48,15 @@ public class Resource<Protocol, Format, Mode> implements Serializable
   public Resource( String identifier, Format format )
     {
     this.identifier = identifier;
+    this.protocol = null;
     this.format = format;
+    this.mode = null;
     }
 
   public Resource( String identifier, Format format, Mode mode )
     {
     this.identifier = identifier;
+    this.protocol = null;
     this.format = format;
     this.mode = mode;
     }

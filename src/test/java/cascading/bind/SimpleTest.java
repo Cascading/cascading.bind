@@ -21,7 +21,6 @@
 package cascading.bind;
 
 import cascading.CascadingTestCase;
-import cascading.bind.tap.TapFactory;
 import cascading.cascade.Cascade;
 import cascading.flow.Flow;
 import cascading.tap.Tap;
@@ -32,14 +31,6 @@ import junit.framework.Assert;
  */
 public class SimpleTest extends CascadingTestCase
   {
-  public void testStereotype()
-    {
-    PersonStereotype stereotype = new PersonStereotype();
-    TapFactory tapFactory = new TapFactory( stereotype );
-
-    Assert.assertNotNull( tapFactory.getTapFor( new ConversionResource( "foo", Protocol.FILE, Format.TSV ) ) );
-    Assert.assertNotNull( tapFactory.getTapFor( new ConversionResource( "foo", Protocol.HTTP, Format.JSON ) ) );
-    }
 
   public void testFlowFactory()
     {

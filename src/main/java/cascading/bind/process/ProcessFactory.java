@@ -32,17 +32,15 @@ import java.util.Set;
 
 import cascading.bind.catalog.Stereotype;
 import cascading.bind.factory.Factory;
-import cascading.bind.tap.TapResource;
 
 /**
  * Class ProcessFactory is an abstract base class for creating process based factories. Where a 'process'
- * has source and sink resources as defined by {@link cascading.bind.tap.TapFactory} instances.
+ * has source and sink resources as defined by {@link cascading.bind.catalog.handler.ProtocolHandler} instances.
  *
- * @param <Process>  a 'process' type
- * @param <Resource> a resource type sub-classing {@link cascading.bind.catalog.Resource}
+ * @param <Process> a 'process' type
  * @see cascading.bind.process.FlowFactory
  */
-public abstract class ProcessFactory<Process, Resource extends TapResource> extends Factory<Process>
+public abstract class ProcessFactory<Process, Resource> extends Factory<Process>
   {
   final Map<String, Stereotype> sourceStereotypes = new HashMap<String, Stereotype>();
   final Map<String, Stereotype> sinkStereotypes = new HashMap<String, Stereotype>();
@@ -59,7 +57,7 @@ public abstract class ProcessFactory<Process, Resource extends TapResource> exte
     }
 
   /**
-   * Method setSourceStereotype binds a given {@link cascading.bind.tap.TapFactory} instance to the given 'name'.
+   * Method setSourceStereotype binds a given {@link cascading.bind.catalog.Stereotype} instance to the given 'name'.
    * <p/>
    * Only one Stereotype may be bound to a source name.
    *
@@ -83,7 +81,7 @@ public abstract class ProcessFactory<Process, Resource extends TapResource> exte
     }
 
   /**
-   * Method setSinkStereotype binds a given {@link cascading.bind.tap.TapFactory} instance to the given 'name'.
+   * Method setSinkStereotype binds a given {@link cascading.bind.catalog.Stereotype} instance to the given 'name'.
    * <p/>
    * Only one Stereotype may be bound to a sink name.
    *
@@ -151,7 +149,7 @@ public abstract class ProcessFactory<Process, Resource extends TapResource> exte
 
   /**
    * Method getAllSourceResources returns a Collection of all Resources instances add via
-   * {@link #addSourceResource(String, cascading.bind.tap.TapResource[])}.
+   * {@link #addSourceResource(String, Object[])}.
    *
    * @return Collection of Resource instances
    */
@@ -176,7 +174,7 @@ public abstract class ProcessFactory<Process, Resource extends TapResource> exte
     sourceResources.clear();
     }
 
-  public Stereotype getSourceStereotypeFor( TapResource resource )
+  public Stereotype getSourceStereotypeFor( Resource resource )
     {
     return getStereotypeFor( resource, sourceResources, sourceStereotypes );
     }
@@ -226,7 +224,7 @@ public abstract class ProcessFactory<Process, Resource extends TapResource> exte
 
   /**
    * Method getAllSinkResources returns a Collection of all Resources instances add via
-   * {@link #addSinkResource(String, cascading.bind.tap.TapResource[])}.
+   * {@link #addSinkResource(String, Object[])}.
    *
    * @return Collection of Resource instances
    */
@@ -269,12 +267,12 @@ public abstract class ProcessFactory<Process, Resource extends TapResource> exte
     return found;
     }
 
-  public Stereotype getSinkStereotypeFor( TapResource resource )
+  public Stereotype getSinkStereotypeFor( Resource resource )
     {
     return getStereotypeFor( resource, sinkResources, sinkStereotypes );
     }
 
-  private Stereotype getStereotypeFor( TapResource resource, Map<String, List<Resource>> resources, Map<String, Stereotype> stereotypes )
+  private Stereotype getStereotypeFor( Resource resource, Map<String, List<Resource>> resources, Map<String, Stereotype> stereotypes )
     {
     String name = null;
 

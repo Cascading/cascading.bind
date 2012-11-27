@@ -27,9 +27,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import cascading.bind.catalog.Resource;
 import cascading.bind.catalog.Stereotype;
-import cascading.bind.tap.TapFactory;
-import cascading.bind.tap.TapResource;
+import cascading.bind.catalog.handler.ProtocolHandler;
+import cascading.bind.catalog.handler.ProtocolHandlers;
 import cascading.cascade.Cascades;
 import cascading.flow.Flow;
 import cascading.flow.FlowConnector;
@@ -37,6 +38,7 @@ import cascading.flow.FlowDef;
 import cascading.pipe.Pipe;
 import cascading.tap.MultiSinkTap;
 import cascading.tap.MultiSourceTap;
+import cascading.tap.SinkMode;
 import cascading.tap.Tap;
 
 /**
@@ -44,15 +46,22 @@ import cascading.tap.Tap;
  * <p/>
  * This class should be sub-classed when the intent is to create new Cascading {@link Flow} instances.
  * It provides convenience methods for {@link Tap} and {@link Flow} instantiation.
- *
- * @see TapResource
  */
-public abstract class FlowFactory extends ProcessFactory<Flow, TapResource>
+public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow, Resource<Protocol, Format, SinkMode>>
   {
   protected String name;
 
+  protected ProtocolHandlers<Protocol, Format> protocolHandlers = new ProtocolHandlers<Protocol, Format>();
+
   protected FlowFactory()
     {
+    }
+
+  protected FlowFactory( Properties properties, ProtocolHandlers<Protocol, Format> protocolHandlers, String name )
+    {
+    super( properties );
+    this.protocolHandlers = protocolHandlers;
+    this.name = name;
     }
 
   protected FlowFactory( Properties properties, String name )
@@ -66,11 +75,16 @@ public abstract class FlowFactory extends ProcessFactory<Flow, TapResource>
     return name;
     }
 
+  public ProtocolHandlers<Protocol, Format> getProtocolHandlers()
+    {
+    return protocolHandlers;
+    }
+
   /**
    * Method getSourceTapFor returns a new {@link Tap} instance for the given name.
    * <p/>
-   * First the bound {@link cascading.bind.tap.TapFactory} is looked up, then a Tap is created by the bound
-   * {@link TapResource} instance.
+   * First the bound {@link cascading.bind.catalog.Stereotype} is looked up, then a Tap is created by the bound
+   * {@link cascading.bind.catalog.handler.ProtocolHandler} instance.
    * <p/>
    * If more than one Resource is bound to the given name, a {@link MultiSourceTap}
    * will be returned encapsulating all the resulting Tap instances.
@@ -80,25 +94,22 @@ public abstract class FlowFactory extends ProcessFactory<Flow, TapResource>
    */
   public Tap getSourceTapFor( String sourceName )
     {
-    TapFactory factory = getTapFactory( getSourceStereotype( sourceName ) );
+    Stereotype stereotype = getSourceStereotype( sourceName );
 
-    if( factory == null )
+    if( stereotype == null )
       throw new IllegalArgumentException( "could not find stereotype for source name: " + sourceName );
 
-    return getSourceTapFor( sourceName, factory );
+    return getSourceTapFor( sourceName, stereotype );
     }
 
-  protected Tap getSourceTapFor( String sourceName, TapFactory factory )
+  protected Tap getSourceTapFor( String sourceName, Stereotype<Protocol, Format> stereotype )
     {
-    List<TapResource> resources = getSourceResources( sourceName );
+    List<Resource<Protocol, Format, SinkMode>> resources = getSourceResources( sourceName );
 
-    if( resources.isEmpty() )
+    Tap[] taps = createTapFor( stereotype, resources );
+
+    if( taps == null )
       return null;
-
-    Tap[] taps = new Tap[ resources.size() ];
-
-    for( int i = 0; i < resources.size(); i++ )
-      taps[ i ] = factory.getTapFor( resources.get( i ) );
 
     if( taps.length == 1 )
       return taps[ 0 ];
@@ -109,8 +120,8 @@ public abstract class FlowFactory extends ProcessFactory<Flow, TapResource>
   /**
    * Method getSinkTapFor returns a new {@link Tap} instance for the given name.
    * <p/>
-   * First the bound {@link cascading.bind.tap.TapFactory} is looked up, then a Tap is created by the bound
-   * {@link TapResource} instance.
+   * First the bound {@link cascading.bind.catalog.Stereotype} is looked up, then a Tap is created by the bound
+   * {@link cascading.bind.catalog.handler.ProtocolHandler} instance.
    * <p/>
    * If more than one Resource is bound to the given name, a {@link MultiSinkTap}
    * will be returned encapsulating all the resulting Tap instances.
@@ -120,25 +131,22 @@ public abstract class FlowFactory extends ProcessFactory<Flow, TapResource>
    */
   public Tap getSinkTapFor( String sinkName )
     {
-    TapFactory factory = getTapFactory( getSinkStereotype( sinkName ) );
+    Stereotype stereotype = getSinkStereotype( sinkName );
 
-    if( factory == null )
+    if( stereotype == null )
       throw new IllegalArgumentException( "could not find stereotype for sink name: " + sinkName );
 
-    return getSinkTapFor( sinkName, factory );
+    return getSinkTapFor( sinkName, stereotype );
     }
 
-  protected Tap getSinkTapFor( String sinkName, TapFactory factory )
+  protected Tap getSinkTapFor( String sinkName, Stereotype<Protocol, Format> stereotype )
     {
-    List<TapResource> resources = getSinkResources( sinkName );
+    List<Resource<Protocol, Format, SinkMode>> resources = getSinkResources( sinkName );
 
-    if( resources.isEmpty() )
+    Tap[] taps = createTapFor( stereotype, resources );
+
+    if( taps == null )
       return null;
-
-    Tap[] taps = new Tap[ resources.size() ];
-
-    for( int i = 0; i < resources.size(); i++ )
-      taps[ i ] = factory.getTapFor( resources.get( i ) );
 
     if( taps.length == 1 )
       return taps[ 0 ];
@@ -146,9 +154,34 @@ public abstract class FlowFactory extends ProcessFactory<Flow, TapResource>
     return new MultiSinkTap( taps );
     }
 
-  private TapFactory getTapFactory( Stereotype stereotype )
+  ProtocolHandler getTapHandler( Protocol protocol )
     {
-    return new TapFactory( stereotype );
+    return protocolHandlers.findHandlerFor( protocol );
+    }
+
+  private Tap[] createTapFor( Stereotype<Protocol, Format> stereotype, List<Resource<Protocol, Format, SinkMode>> resources )
+    {
+    if( resources.isEmpty() )
+      return null;
+
+    Tap[] taps = new Tap[ resources.size() ];
+
+    for( int i = 0; i < resources.size(); i++ )
+      {
+      Resource<Protocol, Format, SinkMode> resource = resources.get( i );
+      Protocol protocol = resource.getProtocol();
+
+      if( protocol == null )
+        protocol = stereotype.getDefaultProtocol();
+
+      ProtocolHandler protocolHandler = getTapHandler( protocol );
+
+      if( protocolHandler == null )
+        throw new IllegalStateException( "could not find handler for protocol: " + protocol );
+
+      taps[ i ] = protocolHandler.createTap( stereotype, resource );
+      }
+    return taps;
     }
 
   protected Tap[] getSourceTapsFor( String... sourceNames )

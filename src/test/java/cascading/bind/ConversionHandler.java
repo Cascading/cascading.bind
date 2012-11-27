@@ -20,46 +20,46 @@
 
 package cascading.bind;
 
+import cascading.bind.catalog.Resource;
+import cascading.bind.catalog.Stereotype;
+import cascading.bind.catalog.handler.ProtocolHandler;
 import cascading.bind.tap.HTTPTap;
 import cascading.bind.tap.JDBCScheme;
 import cascading.bind.tap.JDBCTap;
-import cascading.bind.tap.TapResource;
 import cascading.scheme.Scheme;
 import cascading.tap.SinkMode;
 import cascading.tap.Tap;
 import cascading.tap.local.FileTap;
 
 /** A mock resource that acts as a factory for specific Tap types. */
-public class ConversionResource extends TapResource<Protocol, Format>
+public class ConversionHandler implements ProtocolHandler<Protocol, Format>
   {
-  public ConversionResource( String path, Protocol protocol, Format format )
-    {
-    super( path, protocol, format, SinkMode.KEEP );
-    }
-
-  public ConversionResource( String path, Protocol protocol, Format format, SinkMode mode )
-    {
-    super( path, protocol, format, mode );
-    }
-
   @Override
-  public Tap createTapFor( Scheme scheme )
+  public Tap createTap( Stereotype stereotype, Resource resource )
     {
-    Protocol protocol = getProtocol();
+    Protocol protocol = (Protocol) resource.getProtocol();
 
     if( protocol == null )
       protocol = Protocol.FILE;
 
+    Scheme scheme = stereotype.getSchemeFor( resource.getProtocol(), resource.getFormat() );
+
     switch( protocol )
       {
       case FILE:
-        return new FileTap( scheme, getIdentifier(), getMode() );
+        return new FileTap( scheme, resource.getIdentifier(), (SinkMode) resource.getMode() );
       case JDBC:
-        return new JDBCTap( (JDBCScheme) scheme, getIdentifier(), getMode() );
+        return new JDBCTap( (JDBCScheme) scheme, resource.getIdentifier(), (SinkMode) resource.getMode() );
       case HTTP:
-        return new HTTPTap( scheme, getIdentifier(), getMode() );
+        return new HTTPTap( scheme, resource.getIdentifier(), (SinkMode) resource.getMode() );
       }
 
-    throw new IllegalStateException( "no tap for given protocol: " + getProtocol() );
+    throw new IllegalStateException( "no tap for given protocol: " + resource.getProtocol() );
+    }
+
+  @Override
+  public boolean handles( Protocol protocol )
+    {
+    return true;
     }
   }

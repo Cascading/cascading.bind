@@ -23,6 +23,7 @@ package cascading.bind;
 import java.util.Collection;
 import java.util.Properties;
 
+import cascading.bind.catalog.Resource;
 import cascading.bind.process.CascadeFactory;
 import cascading.bind.process.ProcessFactory;
 import cascading.cascade.Cascade;
@@ -56,24 +57,24 @@ public class TestCacheFactory extends CascadeFactory
   @Override
   public Cascade create()
     {
-    Collection<ConversionResource> resources = getResourcesWith( sourceString );
+    Collection<Resource> resources = getResourcesWith( sourceString );
 
-    for( ConversionResource resource : resources )
+    for( Resource resource : resources )
       {
       Collection<ProcessFactory> dependencies = getSourceDependenciesOn( resource );
 
       if( dependencies.isEmpty() || dependencies.size() < 2 ) // don't cache if more than one dep
         continue;
 
-      ConversionResource cachedResource = new ConversionResource( sinkString, resource.getProtocol(), resource.getFormat(), resource.getMode() );
+      Resource cachedHandler = new Resource( sinkString, resource.getProtocol(), resource.getFormat(), resource.getMode() );
 
       TestCopyFactory cache = new TestCopyFactory( getProperties(), getName() + "-" + resource );
 
       cache.addSourceResource( resource );
-      cache.addSinkResource( cachedResource );
+      cache.addSinkResource( cachedHandler );
 
       for( ProcessFactory dependency : dependencies )
-        dependency.replaceSourceResource( resource, cachedResource );
+        dependency.replaceSourceResource( resource, cachedHandler );
 
       addProcessFactory( cache );
       }

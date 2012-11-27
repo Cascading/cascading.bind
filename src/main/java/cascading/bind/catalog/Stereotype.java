@@ -21,14 +21,15 @@
 package cascading.bind.catalog;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cascading.bind.catalog.handler.FormatHandler;
+import cascading.bind.catalog.handler.FormatHandlers;
 import cascading.scheme.Scheme;
 import cascading.tuple.Fields;
 
@@ -53,7 +54,9 @@ public class Stereotype<Protocol, Format> implements Serializable
   String name = getClass().getSimpleName().replaceAll( "Stereotype$", "" );
   Protocol defaultProtocol;
   Fields fields;
-  final Map<Point, Scheme> schemes = new HashMap<Point, Scheme>();
+
+  final FormatHandlers handlers = new FormatHandlers();
+  final Map<Point<Protocol, Format>, Scheme> staticSchemes = new HashMap<Point<Protocol, Format>, Scheme>();
 
   public Stereotype( Protocol defaultProtocol )
     {
@@ -62,12 +65,12 @@ public class Stereotype<Protocol, Format> implements Serializable
 
   public Stereotype( Protocol defaultProtocol, String name, Fields fields )
     {
-    this.defaultProtocol = defaultProtocol;
-    this.name = name == null ? this.name : name;
-    this.fields = fields;
+    this( FormatHandlers.EMPTY, defaultProtocol, name, fields );
+    }
 
-    if( defaultProtocol == null )
-      throw new IllegalArgumentException( "defaultProtocol may not be null" );
+  public Stereotype( FormatHandlers handlers, Protocol defaultProtocol, String name, Fields fields )
+    {
+    this( handlers, Collections.EMPTY_MAP, defaultProtocol, name, fields );
     }
 
   /**
@@ -78,7 +81,19 @@ public class Stereotype<Protocol, Format> implements Serializable
    */
   public Stereotype( Stereotype<Protocol, Format> stereotype, String name )
     {
-    this( stereotype.getDefaultProtocol(), name, stereotype.getFields() );
+    this( stereotype.handlers, stereotype.staticSchemes, stereotype.getDefaultProtocol(), name, stereotype.getFields() );
+    }
+
+  protected Stereotype( FormatHandlers handlers, Map<Point<Protocol, Format>, Scheme> staticSchemes, Protocol defaultProtocol, String name, Fields fields )
+    {
+    this.handlers.addAll( handlers );
+    this.staticSchemes.putAll( staticSchemes );
+    this.defaultProtocol = defaultProtocol;
+    this.name = name == null ? this.name : name;
+    this.fields = normalize( fields );
+
+    if( defaultProtocol == null )
+      throw new IllegalArgumentException( "defaultProtocol may not be null" );
     }
 
   public String getName()
@@ -105,90 +120,103 @@ public class Stereotype<Protocol, Format> implements Serializable
     {
     Set<Format> formats = new HashSet<Format>();
 
-    for( Point<Protocol, Format> point : schemes.keySet() )
-      formats.add( point.format );
+    addAllFormats( formats, staticSchemes.keySet() );
 
     return formats;
+    }
+
+  private void addAllFormats( Set<Format> formats, Set<Point<Protocol, Format>> points )
+    {
+    for( Point<Protocol, Format> point : points )
+      formats.add( point.format );
     }
 
   public Collection<Protocol> getAllProtocols()
     {
     Set<Protocol> protocols = new HashSet<Protocol>();
 
-    for( Point<Protocol, Format> point : schemes.keySet() )
-      protocols.add( point.protocol );
+    addAllProtocols( protocols, staticSchemes.keySet() );
 
     return protocols;
+    }
+
+  private void addAllProtocols( Set<Protocol> protocols, Set<Point<Protocol, Format>> points )
+    {
+    for( Point<Protocol, Format> point : points )
+      protocols.add( point.protocol );
     }
 
   private void setFields( Scheme scheme )
     {
     if( scheme.isSource() )
       {
+      Fields sourceFields = normalize( scheme.getSourceFields() );
+
       if( fields == null )
-        fields = scheme.getSourceFields();
-      else if( !fields.equals( scheme.getSourceFields() ) )
-        throw new IllegalArgumentException( "all schemes added to stereotype must have the same source fields, expected: " + fields + ", received: " + scheme.getSourceFields() + " in stereotype: " + getName() );
+        fields = sourceFields;
+      else if( !fields.equals( sourceFields ) )
+        throw new IllegalArgumentException( "all schemes added to stereotype must have the same source fields, expected: " + fields + ", received: " + sourceFields + " in stereotype: " + getName() );
       }
 
     if( scheme.isSink() )
       {
+      Fields sinkFields = normalize( scheme.getSinkFields() );
+
       if( fields == null )
-        fields = scheme.getSinkFields();
-      else if( !fields.equals( scheme.getSinkFields() ) )
-        throw new IllegalArgumentException( "all schemes added to stereotype must have the same sink fields, expected: " + fields + ", received: " + scheme.getSinkFields() + " in stereotype: " + getName() );
+        fields = sinkFields;
+      else if( !fields.equals( sinkFields ) )
+        throw new IllegalArgumentException( "all schemes added to stereotype must have the same sink fields, expected: " + fields + ", received: " + sinkFields + " in stereotype: " + getName() );
       }
     }
 
-  protected void addSchemeFor( Protocol protocol, Format format, Scheme scheme )
+  public void addSchemeFor( Protocol protocol, Format format, Scheme scheme )
     {
     if( protocol == null )
-      {
-      addSchemeFor( format, scheme );
-      return;
-      }
+      protocol = defaultProtocol;
 
     setFields( scheme );
 
-    schemes.put( new Point<Protocol, Format>( protocol, format ), scheme );
+    staticSchemes.put( new Point<Protocol, Format>( protocol, format ), scheme );
     }
 
-  protected void addSchemeFor( Format format, Scheme scheme )
+  public void addSchemeFor( Format format, Scheme scheme )
     {
-    setFields( scheme );
-
-    schemes.put( new Point<Protocol, Format>( defaultProtocol, format ), scheme );
+    addSchemeFor( null, format, scheme );
     }
 
   public Scheme getSchemeFor( Protocol protocol, Format format )
     {
     if( protocol == null )
-      return getSchemeFor( format );
+      protocol = defaultProtocol;
 
-    return schemes.get( new Point<Protocol, Format>( protocol, format ) );
+    Point<Protocol, Format> pair = pair( protocol, format );
+
+    Scheme scheme = staticSchemes.get( pair );
+
+    if( scheme != null )
+      return scheme;
+
+    FormatHandler handler = handlers.findHandlerFor( protocol, format );
+
+    if( handler == null )
+      return null;
+
+    scheme = handler.createScheme( this, protocol, format );
+
+    if( !getFields().isUnknown() )
+      addSchemeFor( protocol, format, scheme );
+
+    return scheme;
     }
 
   public Scheme getSchemeFor( Format format )
     {
-    return schemes.get( new Point<Protocol, Format>( defaultProtocol, format ) );
-    }
-
-  public Collection<Scheme> getAllSchemesFor( Format format )
-    {
-    List<Scheme> found = new ArrayList<Scheme>();
-
-    for( Map.Entry<Point, Scheme> entry : schemes.entrySet() )
-      {
-      if( format.equals( entry.getKey().format ) )
-        found.add( entry.getValue() );
-      }
-
-    return found;
+    return getSchemeFor( null, format );
     }
 
   public boolean containsSchemeFor( Format format )
     {
-    return !getAllSchemesFor( format ).isEmpty();
+    return getAllFormats().contains( format );
     }
 
   protected Point<Protocol, Format> pair( Resource<Protocol, Format, ?> resource )
@@ -207,6 +235,14 @@ public class Stereotype<Protocol, Format> implements Serializable
       protocol = defaultProtocol;
 
     return new Point<Protocol, Format>( protocol, format );
+    }
+
+  private Fields normalize( Fields fields )
+    {
+    if( fields.equals( Fields.ALL ) )
+      fields = Fields.UNKNOWN;
+
+    return fields;
     }
 
   @Override

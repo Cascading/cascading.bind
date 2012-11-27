@@ -22,8 +22,8 @@ package cascading.bind;
 
 import java.util.Properties;
 
+import cascading.bind.catalog.Resource;
 import cascading.bind.process.FlowFactory;
-import cascading.bind.tap.TapResource;
 import cascading.flow.Flow;
 import cascading.flow.FlowConnector;
 import cascading.flow.local.LocalFlowConnector;
@@ -44,16 +44,17 @@ public class TestCopyFactory extends FlowFactory
     {
     super( properties, name );
 
+    getProtocolHandlers().add( new ConversionHandler() );
     setSourceStereotype( name, new CopyStereotype() );
     setSinkStereotype( name, new CopyStereotype() );
     }
 
-  public void addSourceResource( TapResource resource )
+  public void addSourceResource( Resource resource )
     {
     addSourceResource( getName(), resource );
     }
 
-  public void addSinkResource( TapResource resource )
+  public void addSinkResource( Resource resource )
     {
     addSinkResource( getName(), resource );
     }
