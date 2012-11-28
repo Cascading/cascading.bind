@@ -239,7 +239,7 @@ public class Stereotype<Protocol, Format> implements Serializable
 
   private Fields normalize( Fields fields )
     {
-    if( fields.equals( Fields.ALL ) )
+    if( fields != null && fields.equals( Fields.ALL ) )
       fields = Fields.UNKNOWN;
 
     return fields;

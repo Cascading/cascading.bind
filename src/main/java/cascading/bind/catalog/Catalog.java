@@ -39,6 +39,11 @@ public class Catalog<Protocol, Format> implements Serializable
     {
     }
 
+  public Collection<String> getStereotypeNames()
+    {
+    return nameToStereotype.keySet();
+    }
+
   public Collection<Format> getAllFormats()
     {
     Set<Format> formats = new HashSet<Format>();
