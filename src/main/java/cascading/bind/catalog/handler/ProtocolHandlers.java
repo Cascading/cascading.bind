@@ -21,14 +21,25 @@
 package cascading.bind.catalog.handler;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public class ProtocolHandlers<Protocol, Format> implements Serializable
+public class ProtocolHandlers<Protocol, Format> implements Iterable<ProtocolHandler<Protocol, Format>>, Serializable
   {
+  private static final Logger LOG = LoggerFactory.getLogger( ProtocolHandlers.class );
+
   public static final ProtocolHandlers EMPTY = new ProtocolHandlers();
 
   final List<ProtocolHandler<Protocol, Format>> handlers = new LinkedList<ProtocolHandler<Protocol, Format>>();
@@ -66,5 +77,41 @@ public class ProtocolHandlers<Protocol, Format> implements Serializable
       }
 
     return null;
+    }
+
+  public Set<Protocol> getProtocols()
+    {
+    Set<Protocol> protocols = new HashSet<Protocol>();
+
+    for( ProtocolHandler<Protocol, Format> handler : handlers )
+      {
+      Collection<? extends Protocol> currentProtocols = handler.getProtocols();
+
+      if( !Collections.disjoint( protocols, currentProtocols ) )
+        LOG.warn( "protocol handler: {} provides one or more duplicate default protocols: {}", handler, currentProtocols );
+      else
+        protocols.addAll( currentProtocols );
+      }
+
+    return protocols;
+    }
+
+  public Map<String, List<String>> getProtocolProperties( Protocol protocol )
+    {
+    for( ProtocolHandler<Protocol, Format> handler : handlers )
+      {
+      Map<String, List<String>> defaultProperties = handler.getDefaultProperties( protocol );
+
+      if( defaultProperties != null && !defaultProperties.isEmpty() )
+        return defaultProperties;
+      }
+
+    return Collections.EMPTY_MAP;
+    }
+
+  @Override
+  public Iterator<ProtocolHandler<Protocol, Format>> iterator()
+    {
+    return handlers.iterator();
     }
   }

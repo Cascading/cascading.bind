@@ -71,6 +71,8 @@ dependencies {
 
   compile group: 'cascading', name: 'cascading-core', version: cascadingVersion, changing: true
 
+  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1'
+
   testCompile group: 'cascading', name: 'cascading-local', version: cascadingVersion, changing: true
   testCompile group: 'cascading', name: 'cascading-core', version: cascadingVersion, classifier: 'tests', changing: true
   testCompile group: 'cascading', name: 'cascading-local', version: cascadingVersion, classifier: 'tests', changing: true

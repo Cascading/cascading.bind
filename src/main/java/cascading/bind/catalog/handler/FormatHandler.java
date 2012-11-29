@@ -21,8 +21,10 @@
 package cascading.bind.catalog.handler;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
-import cascading.bind.catalog.Point;
 import cascading.bind.catalog.Stereotype;
 import cascading.scheme.Scheme;
 
@@ -31,7 +33,11 @@ import cascading.scheme.Scheme;
  */
 public interface FormatHandler<Protocol, Format> extends Serializable
   {
+  Collection<? extends Format> getFormats();
+
   boolean handles( Protocol protocol, Format format );
 
   Scheme createScheme( Stereotype<Protocol, Format> stereotype, Protocol protocol, Format format );
+
+  Map<String, List<String>> getDefaultProperties( Format format );
   }

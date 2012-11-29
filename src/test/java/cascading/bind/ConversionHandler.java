@@ -20,6 +20,11 @@
 
 package cascading.bind;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import cascading.bind.catalog.Resource;
 import cascading.bind.catalog.Stereotype;
 import cascading.bind.catalog.handler.ProtocolHandler;
@@ -61,5 +66,17 @@ public class ConversionHandler implements ProtocolHandler<Protocol, Format>
   public boolean handles( Protocol protocol )
     {
     return true;
+    }
+
+  @Override
+  public Map<String, List<String>> getDefaultProperties( Protocol protocol )
+    {
+    return null;
+    }
+
+  @Override
+  public Collection<? extends Protocol> getProtocols()
+    {
+    return Arrays.asList( Protocol.FILE, Protocol.JDBC, Protocol.HTTP );
     }
   }

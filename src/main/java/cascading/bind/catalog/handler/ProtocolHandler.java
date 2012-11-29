@@ -21,6 +21,9 @@
 package cascading.bind.catalog.handler;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import cascading.bind.catalog.Resource;
 import cascading.bind.catalog.Stereotype;
@@ -32,7 +35,11 @@ import cascading.tap.Tap;
  */
 public interface ProtocolHandler<Protocol, Format> extends Serializable
   {
+  Collection<? extends Protocol> getProtocols();
+
   boolean handles( Protocol protocol );
 
   Tap createTap( Stereotype<Protocol, Format> stereotype, Resource<Protocol, Format, SinkMode> resource );
+
+  Map<String, List<String>> getDefaultProperties( Protocol protocol );
   }
