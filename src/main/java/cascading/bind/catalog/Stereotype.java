@@ -20,6 +20,7 @@
 
 package cascading.bind.catalog;
 
+import java.beans.ConstructorProperties;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,8 +31,16 @@ import java.util.Set;
 
 import cascading.bind.catalog.handler.FormatHandler;
 import cascading.bind.catalog.handler.FormatHandlers;
+import cascading.bind.json.FieldsDeserializer;
+import cascading.bind.json.FieldsSerializer;
 import cascading.scheme.Scheme;
 import cascading.tuple.Fields;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Class Stereotype is used to map between 'protocols' and 'formats' to available Cascading Scheme instances.
@@ -49,16 +58,30 @@ import cascading.tuple.Fields;
  * @param <Protocol> a 'protocol' type
  * @param <Format>   a data 'format' type
  */
+@JsonAutoDetect(
+  fieldVisibility = JsonAutoDetect.Visibility.NONE,
+  getterVisibility = JsonAutoDetect.Visibility.NONE,
+  setterVisibility = JsonAutoDetect.Visibility.NONE)
 public class Stereotype<Protocol, Format> implements Serializable
   {
+  @JsonProperty
   String name = getClass().getSimpleName().replaceAll( "Stereotype$", "" );
+  @JsonProperty
   Protocol defaultProtocol;
+  @JsonSerialize(using = FieldsSerializer.class)
+  @JsonDeserialize(using = FieldsDeserializer.class)
   Fields fields;
 
-  final FormatHandlers handlers = new FormatHandlers();
+  @JsonProperty
+  final FormatHandlers<Protocol, Format> handlers = new FormatHandlers<Protocol, Format>();
+  @JsonIgnore
   final Map<Point<Protocol, Format>, Scheme> staticSchemes = new HashMap<Point<Protocol, Format>, Scheme>();
 
-  public Stereotype( Protocol defaultProtocol )
+  protected Stereotype()
+    {
+    }
+
+  protected Stereotype( Protocol defaultProtocol )
     {
     this( defaultProtocol, null, null );
     }
@@ -68,7 +91,8 @@ public class Stereotype<Protocol, Format> implements Serializable
     this( FormatHandlers.EMPTY, defaultProtocol, name, fields );
     }
 
-  public Stereotype( FormatHandlers handlers, Protocol defaultProtocol, String name, Fields fields )
+  @JsonCreator
+  public Stereotype( @JsonProperty("handlers") FormatHandlers handlers, @JsonProperty("defaultProtocol") Protocol defaultProtocol, @JsonProperty("name") String name, @JsonProperty("fields") Fields fields )
     {
     this( handlers, Collections.EMPTY_MAP, defaultProtocol, name, fields );
     }
@@ -94,6 +118,9 @@ public class Stereotype<Protocol, Format> implements Serializable
 
     if( defaultProtocol == null )
       throw new IllegalArgumentException( "defaultProtocol may not be null" );
+
+    if( this.name == null || this.name.isEmpty() )
+      throw new IllegalArgumentException( "defaultProtocol may not be null or empty" );
     }
 
   public String getName()
@@ -253,9 +280,17 @@ public class Stereotype<Protocol, Format> implements Serializable
     if( object == null || getClass() != object.getClass() )
       return false;
 
-    Stereotype stereotype = (Stereotype) object;
+    Stereotype that = (Stereotype) object;
 
-    if( fields != null ? !fields.equals( stereotype.fields ) : stereotype.fields != null )
+    if( defaultProtocol != null ? !defaultProtocol.equals( that.defaultProtocol ) : that.defaultProtocol != null )
+      return false;
+    if( fields != null ? !fields.equals( that.fields ) : that.fields != null )
+      return false;
+    if( handlers != null ? !handlers.equals( that.handlers ) : that.handlers != null )
+      return false;
+    if( name != null ? !name.equals( that.name ) : that.name != null )
+      return false;
+    if( staticSchemes != null ? !staticSchemes.equals( that.staticSchemes ) : that.staticSchemes != null )
       return false;
 
     return true;
@@ -264,6 +299,11 @@ public class Stereotype<Protocol, Format> implements Serializable
   @Override
   public int hashCode()
     {
-    return fields != null ? fields.hashCode() : 0;
+    int result = name != null ? name.hashCode() : 0;
+    result = 31 * result + ( defaultProtocol != null ? defaultProtocol.hashCode() : 0 );
+    result = 31 * result + ( fields != null ? fields.hashCode() : 0 );
+    result = 31 * result + ( handlers != null ? handlers.hashCode() : 0 );
+    result = 31 * result + ( staticSchemes != null ? staticSchemes.hashCode() : 0 );
+    return result;
     }
   }

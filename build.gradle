@@ -23,10 +23,18 @@ apply plugin: 'idea'
 apply plugin: 'maven'
 
 apply from: 'etc/version.gradle'
+apply from: 'etc/providedCompile.gradle'
 
 archivesBaseName = 'cascading-bind'
 group = 'cascading'
 version = releaseVersion
+
+ext.cascadingVersion = '2.2.+'
+
+// set property to use locally installed cascading builds
+// otherwise wip releases will be pulled from conjars
+if( System.properties[ 'bind.release.local' ] )
+  cascadingVersion = '2.2.0-wip-dev'
 
 repositories {
   mavenLocal()
@@ -65,18 +73,24 @@ artifacts {
 
 dependencies {
 
-  def cascadingVersion = '2.1.0'
-
   compile group: 'cascading', name: 'cascading-core', version: cascadingVersion, changing: true
 
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1'
+
+  // these are annotations, so are optional
+  providedCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.1.1'
 
   testCompile group: 'cascading', name: 'cascading-local', version: cascadingVersion, changing: true
   testCompile group: 'cascading', name: 'cascading-core', version: cascadingVersion, classifier: 'tests', changing: true
   testCompile group: 'cascading', name: 'cascading-local', version: cascadingVersion, classifier: 'tests', changing: true
   testCompile group: 'cascading', name: 'cascading-platform', version: cascadingVersion, classifier: 'tests', changing: true
 
+  testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.1.1'
+
   testCompile group: 'junit', name: 'junit', version: '4.8.+'
+
+  testRuntime group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.6.1'
+  testRuntime group: 'log4j', name: 'log4j', version: '1.2.16'
 }
 
 test {

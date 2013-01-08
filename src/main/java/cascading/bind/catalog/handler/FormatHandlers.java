@@ -21,6 +21,7 @@
 package cascading.bind.catalog.handler;
 
 import java.io.Serializable;
+import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class FormatHandlers<Protocol, Format> implements Iterable<FormatHandler<Protocol, Format>>, Serializable
+public class FormatHandlers<Protocol, Format> extends AbstractList<FormatHandler<Protocol, Format>> implements Iterable<FormatHandler<Protocol, Format>>, Serializable
   {
   private static final Logger LOG = LoggerFactory.getLogger( FormatHandlers.class );
 
@@ -58,9 +59,16 @@ public class FormatHandlers<Protocol, Format> implements Iterable<FormatHandler<
     this.handlers.addAll( handlers.handlers );
     }
 
-  public void add( FormatHandler<Protocol, Format> handler )
+  @Override
+  public FormatHandler<Protocol, Format> get( int index )
     {
-    handlers.add( handler );
+    return handlers.get( index );
+    }
+
+  @Override
+  public boolean add( FormatHandler<Protocol, Format> handler )
+    {
+    return handlers.add( handler );
     }
 
   public void addAll( FormatHandlers<Protocol, Format> handlers )
@@ -113,5 +121,11 @@ public class FormatHandlers<Protocol, Format> implements Iterable<FormatHandler<
   public Iterator<FormatHandler<Protocol, Format>> iterator()
     {
     return handlers.iterator();
+    }
+
+  @Override
+  public int size()
+    {
+    return handlers.size();
     }
   }

@@ -29,10 +29,12 @@ import cascading.bind.catalog.Resource;
 import cascading.bind.catalog.Stereotype;
 import cascading.tap.SinkMode;
 import cascading.tap.Tap;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  *
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface ProtocolHandler<Protocol, Format> extends Serializable
   {
   Collection<? extends Protocol> getProtocols();

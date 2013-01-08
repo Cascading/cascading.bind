@@ -20,7 +20,11 @@
 
 package cascading.bind.catalog;
 
+import java.beans.ConstructorProperties;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
@@ -30,7 +34,8 @@ public class Point<Protocol, Format> implements Serializable
   public final Protocol protocol;
   public final Format format;
 
-  public Point( Protocol protocol, Format format )
+  @JsonCreator
+  public Point( @JsonProperty("protocol") Protocol protocol, @JsonProperty("format") Format format )
     {
     this.protocol = protocol;
     this.format = format;

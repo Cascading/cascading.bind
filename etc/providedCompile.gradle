@@ -18,28 +18,25 @@
  * limitations under the License.
  */
 
-package cascading.bind.catalog.handler;
+configurations {
+  providedCompile
+}
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+sourceSets {
+  main.compileClasspath += configurations.providedCompile
+}
 
-import cascading.bind.catalog.Stereotype;
-import cascading.scheme.Scheme;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+task mappings {
+  conf2ScopeMappings.addMapping( 0, configurations.providedCompile, Conf2ScopeMappingContainer.PROVIDED )
+}
 
-/**
- *
- */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public interface FormatHandler<Protocol, Format> extends Serializable
-  {
-  Collection<? extends Format> getFormats();
-
-  boolean handles( Protocol protocol, Format format );
-
-  Scheme createScheme( Stereotype<Protocol, Format> stereotype, Protocol protocol, Format format );
-
-  Map<String, List<String>> getDefaultProperties( Format format );
+idea {
+  module {
+    scopes.PROVIDED.plus += configurations.providedCompile
   }
+}
+
+javadoc {
+  classpath += configurations.providedCompile
+}
+

@@ -21,6 +21,7 @@
 package cascading.bind.catalog.handler;
 
 import java.io.Serializable;
+import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,18 +31,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public class ProtocolHandlers<Protocol, Format> implements Iterable<ProtocolHandler<Protocol, Format>>, Serializable
+public class ProtocolHandlers<Protocol, Format> extends AbstractList<ProtocolHandler<Protocol, Format>> implements Iterable<ProtocolHandler<Protocol, Format>>, Serializable
   {
   private static final Logger LOG = LoggerFactory.getLogger( ProtocolHandlers.class );
 
   public static final ProtocolHandlers EMPTY = new ProtocolHandlers();
 
+  @JsonProperty
   final List<ProtocolHandler<Protocol, Format>> handlers = new LinkedList<ProtocolHandler<Protocol, Format>>();
 
   public ProtocolHandlers()
@@ -58,9 +61,16 @@ public class ProtocolHandlers<Protocol, Format> implements Iterable<ProtocolHand
     this.handlers.addAll( handlers.handlers );
     }
 
-  public void add( ProtocolHandler<Protocol, Format> handler )
+  @Override
+  public ProtocolHandler<Protocol, Format> get( int index )
     {
-    handlers.add( handler );
+    return handlers.get( index );
+    }
+
+  @Override
+  public boolean add( ProtocolHandler<Protocol, Format> handler )
+    {
+    return handlers.add( handler );
     }
 
   public void addAll( ProtocolHandlers<Protocol, Format> handlers )
@@ -113,5 +123,11 @@ public class ProtocolHandlers<Protocol, Format> implements Iterable<ProtocolHand
   public Iterator<ProtocolHandler<Protocol, Format>> iterator()
     {
     return handlers.iterator();
+    }
+
+  @Override
+  public int size()
+    {
+    return handlers.size();
     }
   }

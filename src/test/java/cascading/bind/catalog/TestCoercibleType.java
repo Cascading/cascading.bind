@@ -18,28 +18,38 @@
  * limitations under the License.
  */
 
-package cascading.bind.catalog.handler;
+package cascading.bind.catalog;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Type;
 
-import cascading.bind.catalog.Stereotype;
-import cascading.scheme.Scheme;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import cascading.tuple.type.CoercibleType;
 
 /**
  *
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public interface FormatHandler<Protocol, Format> extends Serializable
+public class TestCoercibleType implements CoercibleType<String>
   {
-  Collection<? extends Format> getFormats();
+  @Override
+  public String canonical( Object value )
+    {
+    return (String) value;
+    }
 
-  boolean handles( Protocol protocol, Format format );
+  @Override
+  public <Coerce> Coerce coerce( Object value, Type to )
+    {
+    return (Coerce) value.toString();
+    }
 
-  Scheme createScheme( Stereotype<Protocol, Format> stereotype, Protocol protocol, Format format );
+  @Override
+  public int hashCode()
+    {
+    return super.hashCode();
+    }
 
-  Map<String, List<String>> getDefaultProperties( Format format );
+  @Override
+  public boolean equals( Object obj )
+    {
+    return obj instanceof TestCoercibleType;
+    }
   }
