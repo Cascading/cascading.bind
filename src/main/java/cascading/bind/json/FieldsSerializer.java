@@ -50,7 +50,7 @@ public class FieldsSerializer extends StdSerializer<Fields>
       }
     else
       {
-      jsonGenerator.writeArrayFieldStart( "fields" );
+      jsonGenerator.writeArrayFieldStart( "names" );
 
       for( Comparable comparable : value )
         {

@@ -29,21 +29,29 @@ import java.util.Set;
 
 import cascading.tuple.Fields;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-/** Class Catalog maintains a collection of {@link Stereotype} instances for lookup. */
+/** Class Stereotypes maintains a collection of {@link Stereotype} instances for lookup. */
 @JsonAutoDetect(
   fieldVisibility = JsonAutoDetect.Visibility.NONE,
   getterVisibility = JsonAutoDetect.Visibility.NONE,
   setterVisibility = JsonAutoDetect.Visibility.NONE)
-public class Catalog<Protocol, Format> implements Serializable
+public class Stereotypes<Protocol, Format> implements Serializable
   {
   Map<String, Stereotype<Protocol, Format>> nameToStereotype = new HashMap<String, Stereotype<Protocol, Format>>();
   Map<Fields, Stereotype<Protocol, Format>> fieldsToStereotype = new HashMap<Fields, Stereotype<Protocol, Format>>();
 
-  public Catalog()
+  public Stereotypes()
     {
+    }
+
+  @JsonCreator
+  public Stereotypes( Collection<Stereotype<Protocol, Format>> stereotypes )
+    {
+    setStereotypes( stereotypes );
     }
 
   public Collection<String> getStereotypeNames()
@@ -52,6 +60,7 @@ public class Catalog<Protocol, Format> implements Serializable
     }
 
   @JsonGetter
+  @JsonValue
   public Collection<Stereotype<Protocol, Format>> getStereotypes()
     {
     return nameToStereotype.values();
@@ -67,10 +76,10 @@ public class Catalog<Protocol, Format> implements Serializable
   public void addStereotype( Stereotype<Protocol, Format> stereotype )
     {
     if( nameToStereotype.containsKey( stereotype.getName() ) )
-      throw new IllegalArgumentException( "catalog already contains stereotype for: " + stereotype.getName() + ", with fields: " + nameToStereotype.get( stereotype.getName() ).getFields() );
+      throw new IllegalArgumentException( "stereotypes already contains stereotype for: " + stereotype.getName() + ", with fields: " + nameToStereotype.get( stereotype.getName() ).getFields() );
 
     if( fieldsToStereotype.containsKey( stereotype.getFields() ) )
-      throw new IllegalArgumentException( "catalog already contains stereotype for: " + stereotype.getFields() + ", named: " + fieldsToStereotype.get( stereotype.getFields() ).getName() );
+      throw new IllegalArgumentException( "stereotypes already contains stereotype for: " + stereotype.getFields() + ", named: " + fieldsToStereotype.get( stereotype.getFields() ).getName() );
 
     nameToStereotype.put( stereotype.getName(), stereotype );
     fieldsToStereotype.put( stereotype.getFields(), stereotype );
@@ -145,7 +154,7 @@ public class Catalog<Protocol, Format> implements Serializable
   public String toString()
     {
     final StringBuilder sb = new StringBuilder();
-    sb.append( "Catalog" );
+    sb.append( "Stereotypes" );
     sb.append( "{nameToStereotype=" ).append( nameToStereotype );
     sb.append( '}' );
     return sb.toString();
@@ -159,9 +168,9 @@ public class Catalog<Protocol, Format> implements Serializable
     if( object == null || getClass() != object.getClass() )
       return false;
 
-    Catalog catalog = (Catalog) object;
+    Stereotypes stereotypes = (Stereotypes) object;
 
-    if( !nameToStereotype.equals( catalog.nameToStereotype ) )
+    if( !nameToStereotype.equals( stereotypes.nameToStereotype ) )
       return false;
 
     return true;

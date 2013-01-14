@@ -41,43 +41,43 @@ public class JSONTest
   @Test
   public void test() throws IOException, JsonGenerationException
     {
-    Catalog<String, String> wroteCatalog = new Catalog<String, String>();
+    Stereotypes<String, String> wroteStereotypes = new Stereotypes<String, String>();
 
     FormatHandlers<String, String> handlers = new FormatHandlers<String, String>();
     handlers.add( new TestFormatHandler() );
     handlers.add( new TestFormatHandler() );
 
-    wroteCatalog.addStereotype( new Stereotype<String, String>( "hdfs", "first", new Fields( "one", "two" ).applyTypes( int.class, new TestCoercibleType() ) ) );
-    wroteCatalog.addStereotype( new Stereotype<String, String>( "hdfs", "second", Fields.UNKNOWN ) );
-    wroteCatalog.addStereotype( new Stereotype<String, String>( handlers, "hdfs", "third", new Fields( "one", "two", "three" ).applyTypes( int.class, Double.class, String.class ) ) );
+    wroteStereotypes.addStereotype( new Stereotype<String, String>( "hdfs", "first", new Fields( "one", "two" ).applyTypes( int.class, new TestCoercibleType() ) ) );
+    wroteStereotypes.addStereotype( new Stereotype<String, String>( "hdfs", "second", Fields.UNKNOWN ) );
+    wroteStereotypes.addStereotype( new Stereotype<String, String>( handlers, "hdfs", "third", new Fields( "one", "two", "three" ).applyTypes( int.class, Double.class, String.class ) ) );
 
-    String jsonFirst = writeObject( wroteCatalog );
+    String jsonFirst = writeObject( wroteStereotypes );
 
-    System.out.println( jsonFirst );
+//    System.out.println( jsonFirst );
 
-    Catalog firstRead = readCatalog( jsonFirst );
+    Stereotypes firstRead = readCatalog( jsonFirst );
 
-    Assert.assertEquals( wroteCatalog, firstRead );
+    Assert.assertEquals( wroteStereotypes, firstRead );
 
     String jsonSecond = writeObject( firstRead );
 
-    System.out.println( jsonSecond );
+//    System.out.println( jsonSecond );
 
-    Catalog secondRead = readCatalog( jsonSecond );
+    Stereotypes secondRead = readCatalog( jsonSecond );
 
     Assert.assertEquals( firstRead, secondRead );
     }
 
-  private Catalog readCatalog( String json ) throws IOException
+  private Stereotypes readCatalog( String json ) throws IOException
     {
     StringReader reader = new StringReader( json );
-    return mapper.readValue( reader, Catalog.class );
+    return mapper.readValue( reader, Stereotypes.class );
     }
 
-  private String writeObject( Catalog wroteCatalog ) throws IOException
+  private String writeObject( Stereotypes wroteStereotypes ) throws IOException
     {
     StringWriter writer = new StringWriter();
-    mapper.writer().withDefaultPrettyPrinter().writeValue( writer, wroteCatalog );
+    mapper.writer().withDefaultPrettyPrinter().writeValue( writer, wroteStereotypes );
 
     return writer.toString();
     }

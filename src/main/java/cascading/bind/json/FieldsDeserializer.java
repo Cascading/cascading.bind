@@ -54,9 +54,8 @@ public class FieldsDeserializer extends StdDeserializer<Fields>
     if( root.has( "kind" ) )
       return resolveKind( root.get( "kind" ) );
 
-    JsonNode fieldsNodes = root.get( "fields" );
+    JsonNode fieldsNodes = root.get( "names" );
     JsonNode typesNodes = root.get( "types" );
-
 
     for( int i = 0; i < fieldsNodes.size(); i++ )
       {
@@ -66,7 +65,14 @@ public class FieldsDeserializer extends StdDeserializer<Fields>
       Comparable name = nameNode.isNumber() ? nameNode.asInt() : nameNode.asText();
       Type type = typeNode != null ? resolveType( typeNode ) : null;
 
-      fields = fields.append( new Fields( name ).applyTypes( type ) );
+      Fields current;
+
+      if( typeNode != null )
+        current = new Fields( name, type );
+      else
+        current = new Fields( name );
+
+      fields = fields.append( current );
       }
 
     return fields;
@@ -74,15 +80,24 @@ public class FieldsDeserializer extends StdDeserializer<Fields>
 
   private Type resolveType( JsonNode typeNode )
     {
-    return Coercions.asType( typeNode.textValue() );
+    String typeName = typeNode.textValue();
+
+    if( typeName == null )
+      throw new IllegalStateException( "type may not be null" );
+
+    return Coercions.asType( typeName );
     }
 
   private Fields resolveKind( JsonNode node ) throws IOException
     {
     String value = node.textValue();
 
+    if( Fields.NONE.toString().equals( value ) )
+      return Fields.NONE;
+
     if( Fields.UNKNOWN.toString().equals( value ) )
       return Fields.UNKNOWN;
+
     if( Fields.ALL.toString().equals( value ) )
       return Fields.ALL;
 
