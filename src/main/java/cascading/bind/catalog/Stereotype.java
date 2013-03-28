@@ -20,7 +20,6 @@
 
 package cascading.bind.catalog;
 
-import java.beans.ConstructorProperties;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -120,7 +119,7 @@ public class Stereotype<Protocol, Format> implements Serializable
       throw new IllegalArgumentException( "defaultProtocol may not be null" );
 
     if( this.name == null || this.name.isEmpty() )
-      throw new IllegalArgumentException( "defaultProtocol may not be null or empty" );
+      throw new IllegalArgumentException( "name may not be null or empty" );
     }
 
   public String getName()
