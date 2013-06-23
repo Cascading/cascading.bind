@@ -30,6 +30,12 @@ import cascading.tuple.type.CoercibleType;
 public class TestCoercibleType implements CoercibleType<String>
   {
   @Override
+  public Class<String> getCanonicalType()
+    {
+    return String.class;
+    }
+
+  @Override
   public String canonical( Object value )
     {
     return (String) value;
