@@ -48,9 +48,9 @@ public class JSONTest
     handlers.add( new TestFormatHandler() );
     handlers.add( new TestFormatHandler() );
 
-    wroteStereotypes.addStereotype( new Stereotype<String, String>( "hdfs", "first", new Fields( "one", "two" ).applyTypes( int.class, new TestCoercibleType() ) ) );
-    wroteStereotypes.addStereotype( new Stereotype<String, String>( "hdfs", "second", Fields.UNKNOWN ) );
-    wroteStereotypes.addStereotype( new Stereotype<String, String>( handlers, "hdfs", "third", new Fields( "one", "two", "three" ).applyTypes( int.class, Double.class, String.class ) ) );
+    wroteStereotypes.addStereotype( new Stereotype<String, String>( "hdfs", null, "first", new Fields( "one", "two" ).applyTypes( int.class, new TestCoercibleType() ) ) );
+    wroteStereotypes.addStereotype( new Stereotype<String, String>( "hdfs", null, "second", Fields.UNKNOWN ) );
+    wroteStereotypes.addStereotype( new Stereotype<String, String>( "hdfs", null, "third", new Fields( "one", "two", "three" ).applyTypes( int.class, Double.class, String.class ) ) );
 
     String jsonFirst = writeObject( wroteStereotypes );
 

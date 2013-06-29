@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import cascading.bind.catalog.handler.FormatHandlers;
 import cascading.bind.json.FieldsDeserializer;
 import cascading.bind.json.FieldsSerializer;
 import cascading.scheme.Scheme;
@@ -66,6 +65,8 @@ public class Stereotype<Protocol, Format> implements Serializable
   String name = getClass().getSimpleName().replaceAll( "Stereotype$", "" );
   @JsonProperty
   Protocol defaultProtocol;
+  @JsonProperty
+  Format defaultFormat;
   @JsonSerialize(using = FieldsSerializer.class)
   @JsonDeserialize(using = FieldsDeserializer.class)
   Fields fields;
@@ -79,18 +80,23 @@ public class Stereotype<Protocol, Format> implements Serializable
 
   protected Stereotype( Protocol defaultProtocol )
     {
-    this( defaultProtocol, null, null );
+    this( defaultProtocol, null, null, null );
     }
 
-  public Stereotype( Protocol defaultProtocol, String name, Fields fields )
+  protected Stereotype( Protocol defaultProtocol, Format defaultFormat )
     {
-    this( FormatHandlers.EMPTY, defaultProtocol, name, fields );
+    this( defaultProtocol, defaultFormat, null, null );
+    }
+
+  public Stereotype( String name, Fields fields )
+    {
+    this( Collections.EMPTY_MAP, null, null, name, fields );
     }
 
   @JsonCreator
-  public Stereotype( @JsonProperty("handlers") FormatHandlers handlers, @JsonProperty("defaultProtocol") Protocol defaultProtocol, @JsonProperty("name") String name, @JsonProperty("fields") Fields fields )
+  public Stereotype( @JsonProperty("defaultProtocol") Protocol defaultProtocol, @JsonProperty("defaultFormat") Format defaultFormat, @JsonProperty("name") String name, @JsonProperty("fields") Fields fields )
     {
-    this( Collections.EMPTY_MAP, defaultProtocol, name, fields );
+    this( Collections.EMPTY_MAP, defaultProtocol, defaultFormat, name, fields );
     }
 
   /**
@@ -101,18 +107,16 @@ public class Stereotype<Protocol, Format> implements Serializable
    */
   public Stereotype( Stereotype<Protocol, Format> stereotype, String name )
     {
-    this( stereotype.staticSchemes, stereotype.getDefaultProtocol(), name, stereotype.getFields() );
+    this( stereotype.staticSchemes, stereotype.getDefaultProtocol(), stereotype.getDefaultFormat(), name, stereotype.getFields() );
     }
 
-  protected Stereotype( Map<Point<Protocol, Format>, Scheme> staticSchemes, Protocol defaultProtocol, String name, Fields fields )
+  protected Stereotype( Map<Point<Protocol, Format>, Scheme> staticSchemes, Protocol defaultProtocol, Format defaultFormat, String name, Fields fields )
     {
     this.staticSchemes.putAll( staticSchemes );
     this.defaultProtocol = defaultProtocol;
+    this.defaultFormat = defaultFormat;
     this.name = name == null ? this.name : name;
     this.fields = normalize( fields );
-
-    if( defaultProtocol == null )
-      throw new IllegalArgumentException( "defaultProtocol may not be null" );
 
     if( this.name == null || this.name.isEmpty() )
       throw new IllegalArgumentException( "name may not be null or empty" );
@@ -131,6 +135,11 @@ public class Stereotype<Protocol, Format> implements Serializable
   public Protocol getDefaultProtocol()
     {
     return defaultProtocol;
+    }
+
+  public Format getDefaultFormat()
+    {
+    return defaultFormat;
     }
 
   public Fields getFields()
@@ -219,11 +228,6 @@ public class Stereotype<Protocol, Format> implements Serializable
   public Scheme getSchemeFor( Format format )
     {
     return getSchemeFor( null, format );
-    }
-
-  public boolean containsSchemeFor( Format format )
-    {
-    return getAllFormats().contains( format );
     }
 
   protected Point<Protocol, Format> pair( Resource<Protocol, Format, ?> resource )
