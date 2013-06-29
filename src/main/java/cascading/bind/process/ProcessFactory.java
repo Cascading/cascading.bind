@@ -64,7 +64,7 @@ public abstract class ProcessFactory<Process, Resource> extends Factory<Process>
    * @param sourceName
    * @param stereotype
    */
-  protected void setSourceStereotype( String sourceName, Stereotype stereotype )
+  public void setSourceStereotype( String sourceName, Stereotype stereotype )
     {
     if( sourceName == null || sourceName.isEmpty() )
       throw new IllegalArgumentException( "sourceName may not be null or empty" );
@@ -88,7 +88,7 @@ public abstract class ProcessFactory<Process, Resource> extends Factory<Process>
    * @param sinkName
    * @param stereotype
    */
-  protected void setSinkStereotype( String sinkName, Stereotype stereotype )
+  public void setSinkStereotype( String sinkName, Stereotype stereotype )
     {
     if( sinkName == null || sinkName.isEmpty() )
       throw new IllegalArgumentException( "sinkName may not be null or empty" );

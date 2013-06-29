@@ -29,6 +29,8 @@ import java.util.Set;
 
 import cascading.bind.catalog.Resource;
 import cascading.bind.catalog.Stereotype;
+import cascading.bind.catalog.handler.FormatHandler;
+import cascading.bind.catalog.handler.FormatHandlers;
 import cascading.bind.catalog.handler.ProtocolHandler;
 import cascading.bind.catalog.handler.ProtocolHandlers;
 import cascading.cascade.Cascades;
@@ -36,6 +38,7 @@ import cascading.flow.Flow;
 import cascading.flow.FlowConnector;
 import cascading.flow.FlowDef;
 import cascading.pipe.Pipe;
+import cascading.scheme.Scheme;
 import cascading.tap.MultiSinkTap;
 import cascading.tap.MultiSourceTap;
 import cascading.tap.SinkMode;
@@ -52,16 +55,10 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
   protected String name;
 
   protected ProtocolHandlers<Protocol, Format> protocolHandlers = new ProtocolHandlers<Protocol, Format>();
+  protected FormatHandlers<Protocol, Format> formatHandlers = new FormatHandlers<Protocol, Format>();
 
   protected FlowFactory()
     {
-    }
-
-  protected FlowFactory( Properties properties, ProtocolHandlers<Protocol, Format> protocolHandlers, String name )
-    {
-    super( properties );
-    this.protocolHandlers = protocolHandlers;
-    this.name = name;
     }
 
   protected FlowFactory( Properties properties, String name )
@@ -78,6 +75,11 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
   public ProtocolHandlers<Protocol, Format> getProtocolHandlers()
     {
     return protocolHandlers;
+    }
+
+  public FormatHandlers<Protocol, Format> getFormatHandlers()
+    {
+    return formatHandlers;
     }
 
   /**
@@ -159,6 +161,11 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
     return protocolHandlers.findHandlerFor( protocol );
     }
 
+  FormatHandler getSchemeHandler( Protocol protocol, Format format )
+    {
+    return formatHandlers.findHandlerFor( protocol, format );
+    }
+
   private Tap[] createTapFor( Stereotype<Protocol, Format> stereotype, List<Resource<Protocol, Format, SinkMode>> resources )
     {
     if( resources.isEmpty() )
@@ -170,17 +177,37 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
       {
       Resource<Protocol, Format, SinkMode> resource = resources.get( i );
       Protocol protocol = resource.getProtocol();
+      Format format = resource.getFormat();
 
       if( protocol == null )
         protocol = stereotype.getDefaultProtocol();
+
+      Scheme scheme = stereotype.getSchemeFor( format );
+
+      if( scheme == null )
+        {
+        FormatHandler formatHandler = getSchemeHandler( protocol, format );
+
+        if( formatHandler == null )
+          throw new IllegalStateException( "could not find handler for format: " + format );
+
+        scheme = formatHandler.createScheme( stereotype, protocol, format );
+        }
+
+      if( scheme == null )
+        throw new IllegalStateException( "no scheme found for protocol: " + protocol + ", format: " + format );
 
       ProtocolHandler protocolHandler = getTapHandler( protocol );
 
       if( protocolHandler == null )
         throw new IllegalStateException( "could not find handler for protocol: " + protocol );
 
-      taps[ i ] = protocolHandler.createTap( stereotype, resource );
+      taps[ i ] = protocolHandler.createTap( scheme, resource );
+
+      if( taps[ i ] == null )
+        throw new IllegalStateException( "no tap found for protocol: " + protocol );
       }
+
     return taps;
     }
 

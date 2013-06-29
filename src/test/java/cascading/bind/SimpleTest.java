@@ -31,7 +31,6 @@ import junit.framework.Assert;
  */
 public class SimpleTest extends CascadingTestCase
   {
-
   public void testFlowFactory()
     {
     CSVToTSVFactory factory = new CSVToTSVFactory( "convert", new PersonStereotype() );
@@ -41,11 +40,11 @@ public class SimpleTest extends CascadingTestCase
 
     Flow flow = factory.create();
 
-    Assert.assertEquals( 1, flow.getSourcesCollection().size() );
-    Assert.assertEquals( 1, flow.getSinksCollection().size() );
+    assertEquals( 1, flow.getSourcesCollection().size() );
+    assertEquals( 1, flow.getSinksCollection().size() );
 
-    Assert.assertEquals( "some/path", flow.getSource( "convert" ).getIdentifier() );
-    Assert.assertEquals( "http://some/place", flow.getSink( "convert" ).getIdentifier() );
+    assertEquals( "some/path", flow.getSource( "convert" ).getIdentifier() );
+    assertEquals( "http://some/place", flow.getSink( "convert" ).getIdentifier() );
     }
 
   public void testCascadeFactory()

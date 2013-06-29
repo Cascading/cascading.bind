@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import cascading.bind.catalog.Resource;
-import cascading.bind.catalog.Stereotype;
 import cascading.bind.catalog.handler.ProtocolHandler;
 import cascading.bind.tap.HTTPTap;
 import cascading.bind.tap.JDBCScheme;
@@ -40,23 +39,21 @@ import cascading.tap.local.FileTap;
 public class ConversionHandler implements ProtocolHandler<Protocol, Format>
   {
   @Override
-  public Tap createTap( Stereotype stereotype, Resource resource )
+  public Tap createTap( Scheme scheme, Resource<Protocol, Format, SinkMode> resource )
     {
-    Protocol protocol = (Protocol) resource.getProtocol();
+    Protocol protocol = resource.getProtocol();
 
     if( protocol == null )
       protocol = Protocol.FILE;
 
-    Scheme scheme = stereotype.getSchemeFor( resource.getProtocol(), resource.getFormat() );
-
     switch( protocol )
       {
       case FILE:
-        return new FileTap( scheme, resource.getIdentifier(), (SinkMode) resource.getMode() );
+        return new FileTap( scheme, resource.getIdentifier(), resource.getMode() );
       case JDBC:
-        return new JDBCTap( (JDBCScheme) scheme, resource.getIdentifier(), (SinkMode) resource.getMode() );
+        return new JDBCTap( (JDBCScheme) scheme, resource.getIdentifier(), resource.getMode() );
       case HTTP:
-        return new HTTPTap( scheme, resource.getIdentifier(), (SinkMode) resource.getMode() );
+        return new HTTPTap( scheme, resource.getIdentifier(), resource.getMode() );
       }
 
     throw new IllegalStateException( "no tap for given protocol: " + resource.getProtocol() );

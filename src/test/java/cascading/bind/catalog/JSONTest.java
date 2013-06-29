@@ -28,8 +28,9 @@ import cascading.bind.catalog.handler.FormatHandlers;
 import cascading.tuple.Fields;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import junit.framework.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -57,7 +58,7 @@ public class JSONTest
 
     Stereotypes firstRead = readCatalog( jsonFirst );
 
-    Assert.assertEquals( wroteStereotypes, firstRead );
+    assertEquals( wroteStereotypes, firstRead );
 
     String jsonSecond = writeObject( firstRead );
 
@@ -65,7 +66,7 @@ public class JSONTest
 
     Stereotypes secondRead = readCatalog( jsonSecond );
 
-    Assert.assertEquals( firstRead, secondRead );
+    assertEquals( firstRead, secondRead );
     }
 
   private Stereotypes readCatalog( String json ) throws IOException

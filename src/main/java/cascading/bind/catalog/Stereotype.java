@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import cascading.bind.catalog.handler.FormatHandler;
 import cascading.bind.catalog.handler.FormatHandlers;
 import cascading.bind.json.FieldsDeserializer;
 import cascading.bind.json.FieldsSerializer;
@@ -71,8 +70,6 @@ public class Stereotype<Protocol, Format> implements Serializable
   @JsonDeserialize(using = FieldsDeserializer.class)
   Fields fields;
 
-  @JsonProperty
-  final FormatHandlers<Protocol, Format> handlers = new FormatHandlers<Protocol, Format>();
   @JsonIgnore
   final Map<Point<Protocol, Format>, Scheme> staticSchemes = new HashMap<Point<Protocol, Format>, Scheme>();
 
@@ -93,7 +90,7 @@ public class Stereotype<Protocol, Format> implements Serializable
   @JsonCreator
   public Stereotype( @JsonProperty("handlers") FormatHandlers handlers, @JsonProperty("defaultProtocol") Protocol defaultProtocol, @JsonProperty("name") String name, @JsonProperty("fields") Fields fields )
     {
-    this( handlers, Collections.EMPTY_MAP, defaultProtocol, name, fields );
+    this( Collections.EMPTY_MAP, defaultProtocol, name, fields );
     }
 
   /**
@@ -104,12 +101,11 @@ public class Stereotype<Protocol, Format> implements Serializable
    */
   public Stereotype( Stereotype<Protocol, Format> stereotype, String name )
     {
-    this( stereotype.handlers, stereotype.staticSchemes, stereotype.getDefaultProtocol(), name, stereotype.getFields() );
+    this( stereotype.staticSchemes, stereotype.getDefaultProtocol(), name, stereotype.getFields() );
     }
 
-  protected Stereotype( FormatHandlers handlers, Map<Point<Protocol, Format>, Scheme> staticSchemes, Protocol defaultProtocol, String name, Fields fields )
+  protected Stereotype( Map<Point<Protocol, Format>, Scheme> staticSchemes, Protocol defaultProtocol, String name, Fields fields )
     {
-    this.handlers.addAll( handlers );
     this.staticSchemes.putAll( staticSchemes );
     this.defaultProtocol = defaultProtocol;
     this.name = name == null ? this.name : name;
@@ -217,22 +213,7 @@ public class Stereotype<Protocol, Format> implements Serializable
 
     Point<Protocol, Format> pair = pair( protocol, format );
 
-    Scheme scheme = staticSchemes.get( pair );
-
-    if( scheme != null )
-      return scheme;
-
-    FormatHandler handler = handlers.findHandlerFor( protocol, format );
-
-    if( handler == null )
-      return null;
-
-    scheme = handler.createScheme( this, protocol, format );
-
-    if( !getFields().isUnknown() )
-      addSchemeFor( protocol, format, scheme );
-
-    return scheme;
+    return staticSchemes.get( pair );
     }
 
   public Scheme getSchemeFor( Format format )
@@ -285,8 +266,6 @@ public class Stereotype<Protocol, Format> implements Serializable
       return false;
     if( fields != null ? !fields.equals( that.fields ) : that.fields != null )
       return false;
-    if( handlers != null ? !handlers.equals( that.handlers ) : that.handlers != null )
-      return false;
     if( name != null ? !name.equals( that.name ) : that.name != null )
       return false;
     if( staticSchemes != null ? !staticSchemes.equals( that.staticSchemes ) : that.staticSchemes != null )
@@ -301,7 +280,6 @@ public class Stereotype<Protocol, Format> implements Serializable
     int result = name != null ? name.hashCode() : 0;
     result = 31 * result + ( defaultProtocol != null ? defaultProtocol.hashCode() : 0 );
     result = 31 * result + ( fields != null ? fields.hashCode() : 0 );
-    result = 31 * result + ( handlers != null ? handlers.hashCode() : 0 );
     result = 31 * result + ( staticSchemes != null ? staticSchemes.hashCode() : 0 );
     return result;
     }

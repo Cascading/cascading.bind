@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import cascading.bind.catalog.Resource;
-import cascading.bind.catalog.Stereotype;
+import cascading.scheme.Scheme;
 import cascading.tap.SinkMode;
 import cascading.tap.Tap;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -41,7 +41,7 @@ public interface ProtocolHandler<Protocol, Format> extends Serializable
 
   boolean handles( Protocol protocol );
 
-  Tap createTap( Stereotype<Protocol, Format> stereotype, Resource<Protocol, Format, SinkMode> resource );
+  Tap createTap( Scheme scheme, Resource<Protocol, Format, SinkMode> resource );
 
   Map<String, List<String>> getDefaultProperties( Protocol protocol );
   }
