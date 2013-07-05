@@ -78,6 +78,11 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
     return protocolHandlers;
     }
 
+  public boolean containsProtocolHandlers( Object context )
+    {
+    return getProtocolHandlers().containsKey( context );
+    }
+
   public void addProtocolHandlers( List<ProtocolHandler<Protocol, Format>> protocolHandlers )
     {
     addProtocolHandlers( null, protocolHandlers );
@@ -99,6 +104,11 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
   public Map<Object, FormatHandlers<Protocol, Format>> getFormatHandlers()
     {
     return formatHandlers;
+    }
+
+  public boolean containsFormatHandlers( Object context )
+    {
+    return getFormatHandlers().containsKey( context );
     }
 
   public void addFormatHandlers( List<FormatHandler<Protocol, Format>> formatHandlers )
