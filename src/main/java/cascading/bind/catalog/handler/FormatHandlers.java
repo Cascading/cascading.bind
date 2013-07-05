@@ -41,8 +41,6 @@ public class FormatHandlers<Protocol, Format> extends AbstractList<FormatHandler
   {
   private static final Logger LOG = LoggerFactory.getLogger( FormatHandlers.class );
 
-  public static final FormatHandlers EMPTY = new FormatHandlers();
-
   final List<FormatHandler<Protocol, Format>> handlers = new LinkedList<FormatHandler<Protocol, Format>>();
 
   public FormatHandlers()

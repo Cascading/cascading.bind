@@ -21,6 +21,7 @@
 package cascading.bind.process;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,8 +55,8 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
   {
   protected String name;
 
-  protected ProtocolHandlers<Protocol, Format> protocolHandlers = new ProtocolHandlers<Protocol, Format>();
-  protected FormatHandlers<Protocol, Format> formatHandlers = new FormatHandlers<Protocol, Format>();
+  protected Map<Object, ProtocolHandlers<Protocol, Format>> protocolHandlers = new HashMap<Object, ProtocolHandlers<Protocol, Format>>();
+  protected Map<Object, FormatHandlers<Protocol, Format>> formatHandlers = new HashMap<Object, FormatHandlers<Protocol, Format>>();
 
   protected FlowFactory()
     {
@@ -72,14 +73,50 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
     return name;
     }
 
-  public ProtocolHandlers<Protocol, Format> getProtocolHandlers()
+  public Map<Object, ProtocolHandlers<Protocol, Format>> getProtocolHandlers()
     {
     return protocolHandlers;
     }
 
-  public FormatHandlers<Protocol, Format> getFormatHandlers()
+  public void addProtocolHandlers( List<ProtocolHandler<Protocol, Format>> protocolHandlers )
+    {
+    addProtocolHandlers( null, protocolHandlers );
+    }
+
+  public void addProtocolHandlers( Object context, List<ProtocolHandler<Protocol, Format>> protocolHandlers )
+    {
+    getProtocolHandlers( context ).addAll( protocolHandlers );
+    }
+
+  public ProtocolHandlers<Protocol, Format> getProtocolHandlers( Object context )
+    {
+    if( !this.protocolHandlers.containsKey( context ) )
+      this.protocolHandlers.put( context, new ProtocolHandlers<Protocol, Format>() );
+
+    return this.protocolHandlers.get( context );
+    }
+
+  public Map<Object, FormatHandlers<Protocol, Format>> getFormatHandlers()
     {
     return formatHandlers;
+    }
+
+  public void addFormatHandlers( List<FormatHandler<Protocol, Format>> formatHandlers )
+    {
+    addFormatHandlers( null, formatHandlers );
+    }
+
+  public void addFormatHandlers( Object context, List<FormatHandler<Protocol, Format>> formatHandlers )
+    {
+    getFormatHandlers( context ).addAll( formatHandlers );
+    }
+
+  public FormatHandlers<Protocol, Format> getFormatHandlers( Object context )
+    {
+    if( !this.formatHandlers.containsKey( context ) )
+      this.formatHandlers.put( context, new FormatHandlers<Protocol, Format>() );
+
+    return this.formatHandlers.get( context );
     }
 
   /**
@@ -156,14 +193,14 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
     return new MultiSinkTap( taps );
     }
 
-  ProtocolHandler getTapHandler( Protocol protocol )
+  ProtocolHandler getTapHandler( Object context, Protocol protocol )
     {
-    return protocolHandlers.findHandlerFor( protocol );
+    return getProtocolHandlers( context ).findHandlerFor( protocol );
     }
 
-  FormatHandler getSchemeHandler( Protocol protocol, Format format )
+  FormatHandler getSchemeHandler( Object context, Protocol protocol, Format format )
     {
-    return formatHandlers.findHandlerFor( protocol, format );
+    return getFormatHandlers( context ).findHandlerFor( protocol, format );
     }
 
   private Tap[] createTapFor( Stereotype<Protocol, Format> stereotype, List<Resource<Protocol, Format, SinkMode>> resources )
@@ -176,6 +213,7 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
     for( int i = 0; i < resources.size(); i++ )
       {
       Resource<Protocol, Format, SinkMode> resource = resources.get( i );
+      Object context = resource.getContext();
       Protocol protocol = resource.getProtocol();
       Format format = resource.getFormat();
 
@@ -186,7 +224,7 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
 
       if( scheme == null )
         {
-        FormatHandler formatHandler = getSchemeHandler( protocol, format );
+        FormatHandler formatHandler = getSchemeHandler( context, protocol, format );
 
         if( formatHandler == null )
           throw new IllegalStateException( "could not find handler for format: " + format );
@@ -197,7 +235,7 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
       if( scheme == null )
         throw new IllegalStateException( "no scheme found for protocol: " + protocol + ", format: " + format );
 
-      ProtocolHandler protocolHandler = getTapHandler( protocol );
+      ProtocolHandler protocolHandler = getTapHandler( context, protocol );
 
       if( protocolHandler == null )
         throw new IllegalStateException( "could not find handler for protocol: " + protocol );

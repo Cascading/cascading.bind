@@ -42,8 +42,6 @@ public class ProtocolHandlers<Protocol, Format> extends AbstractList<ProtocolHan
   {
   private static final Logger LOG = LoggerFactory.getLogger( ProtocolHandlers.class );
 
-  public static final ProtocolHandlers EMPTY = new ProtocolHandlers();
-
   @JsonProperty
   final List<ProtocolHandler<Protocol, Format>> handlers = new LinkedList<ProtocolHandler<Protocol, Format>>();
 

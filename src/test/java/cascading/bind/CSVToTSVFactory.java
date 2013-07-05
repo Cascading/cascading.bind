@@ -54,7 +54,7 @@ public class CSVToTSVFactory extends FlowFactory
     super( properties, name );
     this.hasHeaders = hasHeaders;
 
-    getProtocolHandlers().add( new ConversionHandler() );
+    getProtocolHandlers( null ).add( new ConversionHandler() );
     setSourceStereotype( name, stereotype );
     setSinkStereotype( name, stereotype );
     }

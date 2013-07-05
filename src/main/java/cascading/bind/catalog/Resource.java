@@ -32,13 +32,24 @@ import java.io.Serializable;
  */
 public final class Resource<Protocol, Format, Mode> implements Serializable
   {
+  private final String context; // any additional scoping to help identify a handler
   private final String identifier;
   private final Protocol protocol;
   private final Format format;
   private final Mode mode;
 
+  public Resource( String context, String identifier, Protocol protocol, Format format, Mode mode )
+    {
+    this.context = context;
+    this.identifier = identifier;
+    this.protocol = protocol;
+    this.format = format;
+    this.mode = mode;
+    }
+
   public Resource( String identifier, Protocol protocol, Format format, Mode mode )
     {
+    this.context = null;
     this.identifier = identifier;
     this.protocol = protocol;
     this.format = format;
@@ -47,6 +58,7 @@ public final class Resource<Protocol, Format, Mode> implements Serializable
 
   public Resource( String identifier, Format format )
     {
+    this.context = null;
     this.identifier = identifier;
     this.protocol = null;
     this.format = format;
@@ -55,10 +67,16 @@ public final class Resource<Protocol, Format, Mode> implements Serializable
 
   public Resource( String identifier, Format format, Mode mode )
     {
+    this.context = null;
     this.identifier = identifier;
     this.protocol = null;
     this.format = format;
     this.mode = mode;
+    }
+
+  public String getContext()
+    {
+    return context;
     }
 
   public String getIdentifier()

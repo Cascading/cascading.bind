@@ -44,7 +44,7 @@ public class TestCopyFactory extends FlowFactory
     {
     super( properties, name );
 
-    getProtocolHandlers().add( new ConversionHandler() );
+    getProtocolHandlers( null ).add( new ConversionHandler() );
     setSourceStereotype( name, new CopyStereotype() );
     setSinkStereotype( name, new CopyStereotype() );
     }
