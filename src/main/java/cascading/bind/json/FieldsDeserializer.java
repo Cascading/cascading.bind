@@ -38,6 +38,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class FieldsDeserializer extends StdDeserializer<Fields>
   {
+    
+    static final private ObjectMapper mapper = new ObjectMapper();
+    
   public FieldsDeserializer()
     {
     super( Fields.class );
@@ -46,7 +49,6 @@ public class FieldsDeserializer extends StdDeserializer<Fields>
   @Override
   public Fields deserialize( JsonParser jsonParser, DeserializationContext ctxt ) throws IOException, JsonProcessingException
     {
-    ObjectMapper mapper = (ObjectMapper) jsonParser.getCodec();
     ObjectNode root = (ObjectNode) mapper.readTree( jsonParser );
 
     Fields fields = Fields.NONE;
