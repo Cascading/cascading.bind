@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import cascading.tuple.Fields;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -41,7 +42,27 @@ import com.fasterxml.jackson.annotation.JsonValue;
   setterVisibility = JsonAutoDetect.Visibility.NONE)
 public class Stereotypes<Protocol, Format> implements Serializable
   {
-  Map<String, Stereotype<Protocol, Format>> nameToStereotype = new HashMap<String, Stereotype<Protocol, Format>>();
+  static class InsensitiveMap<V> extends TreeMap<String, V>
+    {
+    public InsensitiveMap()
+      {
+      super( String.CASE_INSENSITIVE_ORDER );
+      }
+
+    @Override
+    public V get( Object key )
+      {
+      return super.get( key.toString().toLowerCase() );
+      }
+
+    @Override
+    public V put( String key, V value )
+      {
+      return super.put( key.toLowerCase(), value );
+      }
+    }
+
+  Map<String, Stereotype<Protocol, Format>> nameToStereotype = new InsensitiveMap<Stereotype<Protocol, Format>>();
   Map<Fields, Stereotype<Protocol, Format>> fieldsToStereotype = new HashMap<Fields, Stereotype<Protocol, Format>>();
 
   public Stereotypes()

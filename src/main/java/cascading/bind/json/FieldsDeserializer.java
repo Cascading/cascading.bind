@@ -47,7 +47,7 @@ public class FieldsDeserializer extends StdDeserializer<Fields>
   public Fields deserialize( JsonParser jsonParser, DeserializationContext ctxt ) throws IOException, JsonProcessingException
     {
     ObjectMapper mapper = (ObjectMapper) jsonParser.getCodec();
-    ObjectNode root = (ObjectNode) mapper.readTree( jsonParser );
+    ObjectNode root = mapper.readTree( jsonParser );
 
     Fields fields = Fields.NONE;
 
@@ -60,7 +60,7 @@ public class FieldsDeserializer extends StdDeserializer<Fields>
     for( int i = 0; i < fieldsNodes.size(); i++ )
       {
       JsonNode nameNode = fieldsNodes.get( i );
-      JsonNode typeNode = typesNodes.get( i );
+      JsonNode typeNode = typesNodes == null ? null : typesNodes.get( i );
 
       Comparable name = nameNode.isNumber() ? nameNode.asInt() : nameNode.asText();
       Type type = typeNode != null ? resolveType( typeNode ) : null;
