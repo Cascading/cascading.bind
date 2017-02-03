@@ -18,12 +18,24 @@
  * limitations under the License.
  */
 
+buildscript {
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:2.2.1'
+    classpath 'com.netflix.nebula:gradle-ospackage-plugin:2.2.6'
+  }
+}
+
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'maven'
+apply plugin: 'provided-base'
 
 apply from: 'etc/version.gradle'
-apply from: 'etc/providedCompile.gradle'
+//apply from: 'etc/providedCompile.gradle'
 
 archivesBaseName = 'cascading-bind'
 group = 'cascading'
@@ -39,7 +51,7 @@ if( System.properties[ 'bind.release.local' ] )
 repositories {
   mavenLocal()
   mavenCentral()
-  mavenRepo name: 'conjars', url: 'http://conjars.org/repo/'
+  maven { url 'http://conjars.org/repo/' }
 }
 
 configurations {
@@ -78,7 +90,7 @@ dependencies {
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1'
 
   // these are annotations, so are optional
-  providedCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.1.1'
+  provided group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.1.1'
 
   testCompile group: 'cascading', name: 'cascading-local', version: cascadingVersion, changing: true
   testCompile group: 'cascading', name: 'cascading-core', version: cascadingVersion, classifier: 'tests', changing: true
