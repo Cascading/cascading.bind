@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2007-2013 Concurrent, Inc. All Rights Reserved.
+ * Copyright (c) 2017 Chris K Wensel <chris@wensel.net>. All Rights Reserved.
+ * Copyright (c) 2007-2017 Xplenty, Inc. All Rights Reserved.
  *
  * Project and contact information: http://www.cascading.org/
  *
@@ -32,8 +33,10 @@ import cascading.bind.catalog.Resource;
 import cascading.bind.catalog.Stereotype;
 import cascading.bind.catalog.handler.FormatHandler;
 import cascading.bind.catalog.handler.FormatHandlers;
+import cascading.bind.catalog.handler.HandlerProvider;
 import cascading.bind.catalog.handler.ProtocolHandler;
 import cascading.bind.catalog.handler.ProtocolHandlers;
+import cascading.bind.catalog.handler.Role;
 import cascading.cascade.Cascades;
 import cascading.flow.Flow;
 import cascading.flow.FlowConnector;
@@ -47,7 +50,7 @@ import cascading.tap.Tap;
 
 /**
  * Class FlowFactory is a sub-class of {@link ProcessFactory} that returns Cascading {@link Flow} instances.
- * <p/>
+ * <p>
  * This class should be sub-classed when the intent is to create new Cascading {@link Flow} instances.
  * It provides convenience methods for {@link Tap} and {@link Flow} instantiation.
  */
@@ -71,6 +74,12 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
   public String getName()
     {
     return name;
+    }
+
+  public void addHandlerProvider( HandlerProvider<Protocol,Format> handlerProvider)
+    {
+    addProtocolHandlers( handlerProvider.getProtocolHandlers() );
+    addFormatHandlers( handlerProvider.getFormatHandlers() );
     }
 
   public Map<Object, ProtocolHandlers<Protocol, Format>> getProtocolHandlers()
@@ -131,10 +140,10 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
 
   /**
    * Method getSourceTapFor returns a new {@link Tap} instance for the given name.
-   * <p/>
+   * <p>
    * First the bound {@link cascading.bind.catalog.Stereotype} is looked up, then a Tap is created by the bound
    * {@link cascading.bind.catalog.handler.ProtocolHandler} instance.
-   * <p/>
+   * <p>
    * If more than one Resource is bound to the given name, a {@link MultiSourceTap}
    * will be returned encapsulating all the resulting Tap instances.
    *
@@ -155,7 +164,7 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
     {
     List<Resource<Protocol, Format, SinkMode>> resources = getSourceResources( sourceName );
 
-    Tap[] taps = createTapFor( stereotype, resources );
+    Tap[] taps = createTapFor( stereotype, resources, Role.source );
 
     if( taps == null )
       return null;
@@ -168,10 +177,10 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
 
   /**
    * Method getSinkTapFor returns a new {@link Tap} instance for the given name.
-   * <p/>
+   * <p>
    * First the bound {@link cascading.bind.catalog.Stereotype} is looked up, then a Tap is created by the bound
    * {@link cascading.bind.catalog.handler.ProtocolHandler} instance.
-   * <p/>
+   * <p>
    * If more than one Resource is bound to the given name, a {@link MultiSinkTap}
    * will be returned encapsulating all the resulting Tap instances.
    *
@@ -192,7 +201,7 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
     {
     List<Resource<Protocol, Format, SinkMode>> resources = getSinkResources( sinkName );
 
-    Tap[] taps = createTapFor( stereotype, resources );
+    Tap[] taps = createTapFor( stereotype, resources, Role.sink );
 
     if( taps == null )
       return null;
@@ -203,17 +212,17 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
     return new MultiSinkTap( taps );
     }
 
-  ProtocolHandler getTapHandler( Object context, Protocol protocol )
+  ProtocolHandler getProtocolHandler( Object context, Protocol protocol )
     {
     return getProtocolHandlers( context ).findHandlerFor( protocol );
     }
 
-  FormatHandler getSchemeHandler( Object context, Protocol protocol, Format format )
+  FormatHandler getFormatHandler( Object context, Protocol protocol, Format format )
     {
     return getFormatHandlers( context ).findHandlerFor( protocol, format );
     }
 
-  private Tap[] createTapFor( Stereotype<Protocol, Format> stereotype, List<Resource<Protocol, Format, SinkMode>> resources )
+  private Tap[] createTapFor( Stereotype<Protocol, Format> stereotype, List<Resource<Protocol, Format, SinkMode>> resources, Role role )
     {
     if( resources.isEmpty() )
       return null;
@@ -230,27 +239,30 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
       if( protocol == null )
         protocol = stereotype.getDefaultProtocol();
 
+      if( format == null )
+        format = stereotype.getDefaultFormat();
+
       Scheme scheme = stereotype.getSchemeFor( format );
 
       if( scheme == null )
         {
-        FormatHandler formatHandler = getSchemeHandler( context, protocol, format );
+        FormatHandler formatHandler = getFormatHandler( context, protocol, format );
 
         if( formatHandler == null )
           throw new IllegalStateException( "could not find handler for format: " + format );
 
-        scheme = formatHandler.createScheme( stereotype, protocol, format );
+        scheme = formatHandler.createScheme( stereotype, protocol, format, role );
         }
 
       if( scheme == null )
         throw new IllegalStateException( "no scheme found for protocol: " + protocol + ", format: " + format );
 
-      ProtocolHandler protocolHandler = getTapHandler( context, protocol );
+      ProtocolHandler protocolHandler = getProtocolHandler( context, protocol );
 
       if( protocolHandler == null )
         throw new IllegalStateException( "could not find handler for protocol: " + protocol );
 
-      taps[ i ] = protocolHandler.createTap( scheme, resource );
+      taps[ i ] = protocolHandler.createTap( scheme, resource, role );
 
       if( taps[ i ] == null )
         throw new IllegalStateException( "no tap found for protocol: " + protocol );
@@ -329,7 +341,7 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
 
   /**
    * Method createFlowFrom is a convenience method that returns a new {@link Flow} instance.
-   * <p/>
+   * <p>
    * After all source and sink resources have been bound, the {@link #create()} implementation
    * should call this method to quickly bind source and sink taps to the given assembly head and tail
    * {@link Pipe} instances.

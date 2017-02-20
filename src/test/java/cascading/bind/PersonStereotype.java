@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2007-2013 Concurrent, Inc. All Rights Reserved.
+ * Copyright (c) 2017 Chris K Wensel <chris@wensel.net>. All Rights Reserved.
+ * Copyright (c) 2007-2017 Xplenty, Inc. All Rights Reserved.
  *
  * Project and contact information: http://www.cascading.org/
  *
@@ -28,7 +29,7 @@ import cascading.tuple.Fields;
 
 /**
  * A mock Stereotype that represents a 'person' type.
- * <p/>
+ * <p>
  * Note the constant fields which can be used inside a Cascading application.
  */
 public class PersonStereotype extends Stereotype<Protocol, Format>

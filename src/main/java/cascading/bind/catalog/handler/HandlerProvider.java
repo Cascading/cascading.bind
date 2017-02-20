@@ -19,25 +19,16 @@
  * limitations under the License.
  */
 
-package cascading.bind;
+package cascading.bind.catalog.handler;
 
-import cascading.bind.catalog.Stereotype;
-import cascading.scheme.local.TextLine;
-import cascading.tuple.Fields;
+import java.util.List;
 
 /**
- * A mock Stereotype that represents a 'person' type.
- * <p>
- * Note the constant fields which can be used inside a Cascading application.
+ *
  */
-public class CopyStereotype extends Stereotype<Protocol, Format>
+public interface HandlerProvider<Protocol, Format>
   {
-  protected CopyStereotype()
-    {
-    super( Protocol.FILE );
+  List<ProtocolHandler<Protocol, Format>> getProtocolHandlers();
 
-    addSchemeFor( Format.TSV, new TextLine( new Fields( "line" ), new Fields( "line" ) ) );
-    addSchemeFor( Format.CSV, new TextLine( new Fields( "line" ), new Fields( "line" ) ) );
-    addSchemeFor( Format.JSON, new TextLine( new Fields( "line" ), new Fields( "line" ) ) );
-    }
+  List<FormatHandler<Protocol, Format>> getFormatHandlers();
   }

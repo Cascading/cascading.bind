@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2007-2013 Concurrent, Inc. All Rights Reserved.
+ * Copyright (c) 2017 Chris K Wensel <chris@wensel.net>. All Rights Reserved.
+ * Copyright (c) 2007-2017 Xplenty, Inc. All Rights Reserved.
  *
  * Project and contact information: http://www.cascading.org/
  *
@@ -27,6 +28,7 @@ import java.util.Map;
 
 import cascading.bind.catalog.Resource;
 import cascading.bind.catalog.handler.ProtocolHandler;
+import cascading.bind.catalog.handler.Role;
 import cascading.bind.tap.HTTPTap;
 import cascading.bind.tap.JDBCScheme;
 import cascading.bind.tap.JDBCTap;
@@ -39,7 +41,7 @@ import cascading.tap.local.FileTap;
 public class ConversionHandler implements ProtocolHandler<Protocol, Format>
   {
   @Override
-  public Tap createTap( Scheme scheme, Resource<Protocol, Format, SinkMode> resource )
+  public Tap createTap( Scheme scheme, Resource<Protocol, Format, SinkMode> resource, Role role )
     {
     Protocol protocol = resource.getProtocol();
 

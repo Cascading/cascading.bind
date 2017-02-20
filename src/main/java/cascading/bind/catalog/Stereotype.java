@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2007-2013 Concurrent, Inc. All Rights Reserved.
+ * Copyright (c) 2017 Chris K Wensel <chris@wensel.net>. All Rights Reserved.
+ * Copyright (c) 2007-2017 Xplenty, Inc. All Rights Reserved.
  *
  * Project and contact information: http://www.cascading.org/
  *
@@ -41,14 +42,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Class Stereotype is used to map between 'protocols' and 'formats' to available Cascading Scheme instances.
- * <p/>
+ * <p>
  * This is particularly useful when creating data processing applications that need to deal with
  * multiple data formats for data (tab delimited, JSON, thrift, etc) and multiple ways to access the data
  * (HDFS, S3, JDBC, Memcached, etc).
- * <p/>
+ * <p>
  * This class is type parameterized for P and F where P represent a 'protocol' and F represents
  * a file or data 'format'. Typically P and F are of type {@link Enum}, but may be any standard class.
- * <p/>
+ * <p>
  * It is a common practice to sub-class Stereotype so that each new class represents a particular abstract
  * data type like 'person' or an Apache server log record.
  *

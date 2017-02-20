@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2007-2013 Concurrent, Inc. All Rights Reserved.
+ * Copyright (c) 2017 Chris K Wensel <chris@wensel.net>. All Rights Reserved.
+ * Copyright (c) 2007-2017 Xplenty, Inc. All Rights Reserved.
  *
  * Project and contact information: http://www.cascading.org/
  *
@@ -41,12 +42,12 @@ archivesBaseName = 'cascading-bind'
 group = 'cascading'
 version = releaseVersion
 
-ext.cascadingVersion = '2.2.+'
+ext.cascadingVersion = '3.2.+'
 
 // set property to use locally installed cascading builds
 // otherwise wip releases will be pulled from conjars
 if( System.properties[ 'bind.release.local' ] )
-  cascadingVersion = '2.2.0-wip-dev'
+  cascadingVersion = '3.2.0-wip-dev'
 
 repositories {
   mavenLocal()
@@ -85,9 +86,8 @@ artifacts {
 
 dependencies {
 
-  compile group: 'cascading', name: 'cascading-core', version: cascadingVersion, changing: true
-
-  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1'
+  provided group: 'cascading', name: 'cascading-core', version: cascadingVersion, changing: true
+  provided group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1'
 
   // these are annotations, so are optional
   provided group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.1.1'

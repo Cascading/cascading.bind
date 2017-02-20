@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2007-2013 Concurrent, Inc. All Rights Reserved.
+ * Copyright (c) 2017 Chris K Wensel <chris@wensel.net>. All Rights Reserved.
+ * Copyright (c) 2007-2017 Xplenty, Inc. All Rights Reserved.
  *
  * Project and contact information: http://www.cascading.org/
  *
@@ -41,7 +42,7 @@ public interface ProtocolHandler<Protocol, Format> extends Serializable
 
   boolean handles( Protocol protocol );
 
-  Tap createTap( Scheme scheme, Resource<Protocol, Format, SinkMode> resource );
+  Tap createTap( Scheme scheme, Resource<Protocol, Format, SinkMode> resource, Role role );
 
   Map<String, List<String>> getDefaultProperties( Protocol protocol );
   }

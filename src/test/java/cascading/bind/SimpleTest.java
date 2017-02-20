@@ -25,12 +25,14 @@ import cascading.cascade.Cascade;
 import cascading.flow.Flow;
 import cascading.tap.Tap;
 import junit.framework.Assert;
+import org.junit.Test;
 
 /**
  *
  */
 public class SimpleTest extends CascadingTestCase
   {
+  @Test
   public void testFlowFactory()
     {
     CSVToTSVFactory factory = new CSVToTSVFactory( "convert", new PersonStereotype() );
@@ -47,6 +49,7 @@ public class SimpleTest extends CascadingTestCase
     assertEquals( "http://some/place", flow.getSink( "convert" ).getIdentifier() );
     }
 
+  @Test
   public void testCascadeFactory()
     {
     // these factories read from the same location, but pretend they do something different

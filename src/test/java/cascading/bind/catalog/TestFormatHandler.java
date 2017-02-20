@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2007-2013 Concurrent, Inc. All Rights Reserved.
+ * Copyright (c) 2017 Chris K Wensel <chris@wensel.net>. All Rights Reserved.
+ * Copyright (c) 2007-2017 Xplenty, Inc. All Rights Reserved.
  *
  * Project and contact information: http://www.cascading.org/
  *
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import cascading.bind.catalog.handler.FormatHandler;
+import cascading.bind.catalog.handler.Role;
 import cascading.scheme.Scheme;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
@@ -59,7 +61,7 @@ public class TestFormatHandler implements FormatHandler<String, String>
     }
 
   @Override
-  public Scheme createScheme( Stereotype<String, String> stereotype, String string, String string1 )
+  public Scheme createScheme( Stereotype<String, String> stereotype, String string, String string1, Role role )
     {
     return null;
     }

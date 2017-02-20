@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2007-2013 Concurrent, Inc. All Rights Reserved.
+ * Copyright (c) 2017 Chris K Wensel <chris@wensel.net>. All Rights Reserved.
+ * Copyright (c) 2007-2017 Xplenty, Inc. All Rights Reserved.
  *
  * Project and contact information: http://www.cascading.org/
  *
@@ -39,7 +40,7 @@ public interface FormatHandler<Protocol, Format> extends Serializable
 
   boolean handles( Protocol protocol, Format format );
 
-  Scheme createScheme( Stereotype<Protocol, Format> stereotype, Protocol protocol, Format format );
+  Scheme createScheme( Stereotype<Protocol, Format> stereotype, Protocol protocol, Format format, Role role );
 
   Map<String, List<String>> getDefaultProperties( Format format );
   }

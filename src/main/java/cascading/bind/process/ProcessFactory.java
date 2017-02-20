@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2007-2013 Concurrent, Inc. All Rights Reserved.
+ * Copyright (c) 2017 Chris K Wensel <chris@wensel.net>. All Rights Reserved.
+ * Copyright (c) 2007-2017 Xplenty, Inc. All Rights Reserved.
  *
  * Project and contact information: http://www.cascading.org/
  *
@@ -58,7 +59,7 @@ public abstract class ProcessFactory<Process, Resource> extends Factory<Process>
 
   /**
    * Method setSourceStereotype binds a given {@link cascading.bind.catalog.Stereotype} instance to the given 'name'.
-   * <p/>
+   * <p>
    * Only one Stereotype may be bound to a source name.
    *
    * @param sourceName
@@ -82,7 +83,7 @@ public abstract class ProcessFactory<Process, Resource> extends Factory<Process>
 
   /**
    * Method setSinkStereotype binds a given {@link cascading.bind.catalog.Stereotype} instance to the given 'name'.
-   * <p/>
+   * <p>
    * Only one Stereotype may be bound to a sink name.
    *
    * @param sinkName
@@ -106,10 +107,10 @@ public abstract class ProcessFactory<Process, Resource> extends Factory<Process>
 
   /**
    * Method addSourceResource binds a name to the given resources.
-   * <p/>
+   * <p>
    * This method may be called repeatedly with the same sourceName, all given
    * resources will be added to the binding.
-   * <p/>
+   * <p>
    * Any null resource values will be removed.
    *
    * @param sourceName
@@ -181,10 +182,10 @@ public abstract class ProcessFactory<Process, Resource> extends Factory<Process>
 
   /**
    * Method addSinkResource binds a name to the given resources.
-   * <p/>
+   * <p>
    * This method may be called repeatedly with the same sinkName, all given
    * resources will be added to the binding.
-   * <p/>
+   * <p>
    * Any null resource values will be removed.
    *
    * @param sinkName
