@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2013 Concurrent, Inc. All Rights Reserved.
+ * Copyright (c) 2007-2017 Xplenty, Inc. All Rights Reserved.
  *
  * Project and contact information: http://www.cascading.org/
  *
@@ -20,7 +20,6 @@
 
 package cascading.bind.catalog;
 
-import java.beans.ConstructorProperties;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
