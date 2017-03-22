@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2017 Chris K Wensel <chris@wensel.net>. All Rights Reserved.
  * Copyright (c) 2007-2017 Xplenty, Inc. All Rights Reserved.
  *
  * Project and contact information: http://www.cascading.org/
@@ -26,6 +27,7 @@ import cascading.bind.catalog.Resource;
 import cascading.bind.process.FlowFactory;
 import cascading.flow.Flow;
 import cascading.flow.FlowConnector;
+import cascading.flow.FlowDef;
 import cascading.flow.local.LocalFlowConnector;
 import cascading.pipe.Pipe;
 
@@ -68,8 +70,16 @@ public class TestCopyFactory extends FlowFactory
   @Override
   public Flow create()
     {
+    FlowDef flowDef = FlowDef.flowDef().setName( getName() );
+
+    return create( flowDef );
+    }
+
+  @Override
+  public Flow create( FlowDef flowDef )
+    {
     Pipe pipe = new Pipe( getName() ); // this forces pipe-lining between the source and sink
 
-    return createFlowFrom( getName(), pipe );
+    return createFlowFrom( flowDef, pipe );
     }
   }

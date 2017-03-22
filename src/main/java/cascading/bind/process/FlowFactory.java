@@ -54,7 +54,7 @@ import cascading.tap.Tap;
  * This class should be sub-classed when the intent is to create new Cascading {@link Flow} instances.
  * It provides convenience methods for {@link Tap} and {@link Flow} instantiation.
  */
-public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow, Resource<Protocol, Format, SinkMode>>
+public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<FlowDef, Flow, Resource<Protocol, Format, SinkMode>>
   {
   protected String name;
 
@@ -76,7 +76,7 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
     return name;
     }
 
-  public void addHandlerProvider( HandlerProvider<Protocol,Format> handlerProvider)
+  public void addHandlerProvider( HandlerProvider<Protocol, Format> handlerProvider )
     {
     addProtocolHandlers( handlerProvider.getProtocolHandlers() );
     addFormatHandlers( handlerProvider.getFormatHandlers() );
@@ -342,31 +342,31 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<Flow,
   /**
    * Method createFlowFrom is a convenience method that returns a new {@link Flow} instance.
    * <p>
-   * After all source and sink resources have been bound, the {@link #create()} implementation
+   * After all source and sink resources have been bound, the {@link #create(Object)} implementation
    * should call this method to quickly bind source and sink taps to the given assembly head and tail
    * {@link Pipe} instances.
    *
-   * @param name
    * @param tails
    * @return
    */
-  protected Flow createFlowFrom( String name, Pipe... tails )
-    {
-    FlowDef flowDef = FlowDef.flowDef()
-      .setName( name )
-      .addTails( tails );
-
-    return createFlowFrom( flowDef, tails );
-    }
-
   protected Flow createFlowFrom( FlowDef flowDef, Pipe... tails )
     {
     Map<String, Tap> sources = getSourceTapsMap( tails );
     Map<String, Tap> sinks = getSinkTapsMap( tails );
 
-    flowDef.addSources( sources );
-    flowDef.addSinks( sinks );
+    flowDef.addTails( tails )
+      .addSources( sources )
+      .addSinks( sinks );
 
     return getFlowConnector().connect( flowDef );
     }
+
+  @Override
+  public Flow create()
+    {
+    return create( FlowDef.flowDef().setName( getName() ) );
+    }
+
+  @Override
+  public abstract Flow create( FlowDef flowDef );
   }

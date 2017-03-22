@@ -41,7 +41,7 @@ import cascading.bind.factory.Factory;
  * @param <Process> a 'process' type
  * @see cascading.bind.process.FlowFactory
  */
-public abstract class ProcessFactory<Process, Resource> extends Factory<Process>
+public abstract class ProcessFactory<Def, Process, Resource> extends Factory<Def, Process>
   {
   final Map<String, Stereotype> sourceStereotypes = new HashMap<String, Stereotype>();
   final Map<String, Stereotype> sinkStereotypes = new HashMap<String, Stereotype>();

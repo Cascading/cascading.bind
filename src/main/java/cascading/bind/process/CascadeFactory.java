@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2017 Chris K Wensel <chris@wensel.net>. All Rights Reserved.
  * Copyright (c) 2007-2017 Xplenty, Inc. All Rights Reserved.
  *
  * Project and contact information: http://www.cascading.org/
@@ -31,13 +32,14 @@ import cascading.bind.catalog.Resource;
 import cascading.bind.factory.Factory;
 import cascading.cascade.Cascade;
 import cascading.cascade.CascadeConnector;
+import cascading.cascade.CascadeDef;
 import cascading.flow.Flow;
 import org.jgrapht.graph.SimpleDirectedGraph;
 
 /**
  *
  */
-public class CascadeFactory extends Factory<Cascade>
+public class CascadeFactory extends Factory<CascadeDef, Cascade>
   {
   private final String name;
 
@@ -69,13 +71,13 @@ public class CascadeFactory extends Factory<Cascade>
     return name;
     }
 
-  public void addAllProcessFactories( Collection<ProcessFactory<?, Resource>> processFactories )
+  public void addAllProcessFactories( Collection<ProcessFactory<?, ?, Resource>> processFactories )
     {
-    for( ProcessFactory<?, Resource> processFactory : processFactories )
+    for( ProcessFactory<?, ?, Resource> processFactory : processFactories )
       addProcessFactory( processFactory );
     }
 
-  public void addProcessFactory( ProcessFactory<?, Resource> processFactory )
+  public void addProcessFactory( ProcessFactory<?, ?, Resource> processFactory )
     {
     if( processFactories.contains( processFactory ) )
       throw new IllegalStateException( "may not add identical process factories, received: " + processFactory );
@@ -149,7 +151,7 @@ public class CascadeFactory extends Factory<Cascade>
       insertProcessFactory( processFactory );
     }
 
-  private void insertProcessFactory( ProcessFactory<?, Resource> processFactory )
+  private void insertProcessFactory( ProcessFactory<?, ?, Resource> processFactory )
     {
     for( Resource resource : processFactory.getAllSourceResources() )
       resourceGraph.addVertex( resource );
@@ -172,6 +174,12 @@ public class CascadeFactory extends Factory<Cascade>
   @Override
   public Cascade create()
     {
+    return create( CascadeDef.cascadeDef().setName( getName() ) );
+    }
+
+  @Override
+  public Cascade create( CascadeDef cascadeDef )
+    {
     List<Flow> flows = new ArrayList<Flow>();
 
     for( ProcessFactory processFactory : processFactories )
@@ -179,7 +187,7 @@ public class CascadeFactory extends Factory<Cascade>
       Object o = processFactory.create();
 
       if( o == null )
-        new IllegalStateException( "factory returned null: " + processFactory );
+        throw new IllegalStateException( "factory returned null: " + processFactory );
 
       if( o instanceof Flow )
         flows.add( (Flow) o );
@@ -192,7 +200,8 @@ public class CascadeFactory extends Factory<Cascade>
     if( flows.isEmpty() )
       throw new IllegalStateException( "now flows were created from the given process factories" );
 
-    return getCascadeConnector().connect( name, flows );
-    }
+    cascadeDef.addFlows( flows );
 
+    return getCascadeConnector().connect( cascadeDef );
+    }
   }
