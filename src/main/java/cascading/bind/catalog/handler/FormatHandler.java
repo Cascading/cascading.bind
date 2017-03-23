@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import cascading.bind.catalog.Stereotype;
 import cascading.scheme.Scheme;
@@ -40,7 +41,7 @@ public interface FormatHandler<Protocol, Format> extends Serializable
 
   boolean handles( Protocol protocol, Format format );
 
-  Scheme createScheme( Stereotype<Protocol, Format> stereotype, Protocol protocol, Format format, Role role );
+  Scheme createScheme( Properties properties, Stereotype<Protocol, Format> stereotype, Protocol protocol, Format format, Role role );
 
   Map<String, List<String>> getDefaultProperties( Format format );
   }

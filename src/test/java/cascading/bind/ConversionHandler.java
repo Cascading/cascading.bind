@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import cascading.bind.catalog.Resource;
 import cascading.bind.catalog.handler.ProtocolHandler;
@@ -41,7 +42,7 @@ import cascading.tap.local.FileTap;
 public class ConversionHandler implements ProtocolHandler<Protocol, Format>
   {
   @Override
-  public Tap createTap( Scheme scheme, Resource<Protocol, Format, SinkMode> resource, Role role )
+  public Tap createTap( Properties properties, Scheme scheme, Resource<Protocol, Format, SinkMode> resource, Role role )
     {
     Protocol protocol = resource.getProtocol();
 

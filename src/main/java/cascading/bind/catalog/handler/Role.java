@@ -26,5 +26,15 @@ package cascading.bind.catalog.handler;
  */
 public enum Role
   {
-  source, sink
+    source, sink;
+
+  public boolean isSource()
+    {
+    return this == source;
+    }
+
+  public boolean isSink()
+    {
+    return this == sink;
+    }
   }

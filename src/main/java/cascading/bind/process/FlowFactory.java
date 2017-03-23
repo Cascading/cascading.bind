@@ -251,7 +251,7 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<FlowD
         if( formatHandler == null )
           throw new IllegalStateException( "could not find handler for format: " + format );
 
-        scheme = formatHandler.createScheme( stereotype, protocol, format, role );
+        scheme = formatHandler.createScheme( getProperties(), stereotype, protocol, format, role );
         }
 
       if( scheme == null )
@@ -262,7 +262,7 @@ public abstract class FlowFactory<Protocol, Format> extends ProcessFactory<FlowD
       if( protocolHandler == null )
         throw new IllegalStateException( "could not find handler for protocol: " + protocol );
 
-      taps[ i ] = protocolHandler.createTap( scheme, resource, role );
+      taps[ i ] = protocolHandler.createTap( getProperties(), scheme, resource, role );
 
       if( taps[ i ] == null )
         throw new IllegalStateException( "no tap found for protocol: " + protocol );

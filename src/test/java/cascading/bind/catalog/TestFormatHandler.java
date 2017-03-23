@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import cascading.bind.catalog.handler.FormatHandler;
 import cascading.bind.catalog.handler.Role;
@@ -61,7 +62,7 @@ public class TestFormatHandler implements FormatHandler<String, String>
     }
 
   @Override
-  public Scheme createScheme( Stereotype<String, String> stereotype, String string, String string1, Role role )
+  public Scheme createScheme( Properties properties, Stereotype<String, String> stereotype, String string, String string1, Role role )
     {
     return null;
     }

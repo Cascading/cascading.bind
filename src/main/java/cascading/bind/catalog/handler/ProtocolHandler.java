@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import cascading.bind.catalog.Resource;
 import cascading.scheme.Scheme;
@@ -42,7 +43,7 @@ public interface ProtocolHandler<Protocol, Format> extends Serializable
 
   boolean handles( Protocol protocol );
 
-  Tap createTap( Scheme scheme, Resource<Protocol, Format, SinkMode> resource, Role role );
+  Tap createTap( Properties properties, Scheme scheme, Resource<Protocol, Format, SinkMode> resource, Role role );
 
   Map<String, List<String>> getDefaultProperties( Protocol protocol );
   }
